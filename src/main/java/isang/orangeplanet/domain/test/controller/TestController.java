@@ -1,6 +1,5 @@
 package isang.orangeplanet.domain.test.controller;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import isang.orangeplanet.domain.test.controller.request.CreateTestRequest;
@@ -20,13 +19,13 @@ import org.springframework.web.bind.annotation.*;
  * 본인만의 편한 방식이 있다면, 그대로 개발하셔도 당연히 당연히 좋습니다.
  */
 
-
 /**
  * Controller 애노테이션은 아래 네 개로 고정하겠습니다.
  * | @RequestMapping, @Tag 는 controller별로 수정해주세요!
  * ex) @RequestMapping("/user"), @Tag(name = "User", description = "회원 관련 API")
  */
-@Hidden
+
+//@Hidden
 @RestController
 @RequestMapping("/test")
 @RequiredArgsConstructor
@@ -45,9 +44,7 @@ public class TestController {
    */
   @PostMapping
   @Operation(summary = "테스트 생성")
-  public ApiResponse<Void> createTest(
-    @RequestBody @Valid CreateTestRequest request
-  ) {
+  public ApiResponse<Void> createTest(@RequestBody @Valid CreateTestRequest request) {
     testService.createTest(request);
     return ApiResponse.onSuccess();
   }
@@ -55,7 +52,7 @@ public class TestController {
   @GetMapping("/{testId}")
   @Operation(summary = "테스트 상세 조회")
   public ApiResponse<DetailTestResponse> getTest(
-    /**
+    /*
      * @PathVariable 뒤 ("")에 명시를 안 해주면 swagger가 인식을 못 합니다!
      */
     @PathVariable("testId") Long testId

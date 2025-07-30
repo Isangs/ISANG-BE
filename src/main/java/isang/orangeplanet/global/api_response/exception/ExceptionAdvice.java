@@ -1,8 +1,8 @@
-package isang.orangeplanet.api_response.exception;
+package isang.orangeplanet.global.api_response.exception;
 
-import isang.orangeplanet.api_response.ApiResponse;
-import isang.orangeplanet.api_response.dto.ApiDto;
-import isang.orangeplanet.api_response.status.ErrorStatus;
+import isang.orangeplanet.global.api_response.ApiResponse;
+import isang.orangeplanet.global.api_response.dto.ApiDto;
+import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;

@@ -1,1 +1,56 @@
-spring.application.name=ISANG-BE
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: true
+        http-only: true
+
+spring:
+  application:
+    name: ISANG-BE
+
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+      enabled: true
+
+  jpa:
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+#  mail:
+#    host: smtp.gmail.com
+#    port: ${MAIL_PORT}
+#    username: ${MAIL_USERNAME}
+#    password: ${MAIL_PASSWORD}
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls:
+#            enable: true
+
+#  cloud:
+#    aws:
+#      credentials:
+#        access-key: ${AWS_ACCESS_KEY}
+#        secret-key: ${AWS_SECRET_KEY}
+#      s3:
+#        bucket: ${AWS_S3_BUCKET}
+#        default-profile-url: ${DEFAULT_PROFILE_URL}
+#      region:
+#        static: ap-northeast-2
+
+jwt:
+  secret: ${JWT}
+
+crypto:
+  private-key: ${CRYPTO_PRIVATE_KEY}
+  transformation: ${CRYPTO_TRANSFORMATION}

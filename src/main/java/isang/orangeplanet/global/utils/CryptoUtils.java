@@ -1,4 +1,4 @@
-package com.subnity.common.utils;
+package isang.orangeplanet.global.utils;
 
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.codec.binary.Hex;

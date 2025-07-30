@@ -1,4 +1,4 @@
-package isang.orangeplanet.api_response.status;
+package isang.orangeplanet.global.api_response.status;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

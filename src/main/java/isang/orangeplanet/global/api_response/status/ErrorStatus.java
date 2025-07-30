@@ -1,7 +1,7 @@
-package isang.orangeplanet.api_response.status;
+package isang.orangeplanet.global.api_response.status;
 
-import isang.orangeplanet.api_response.dto.ApiDto;
-import isang.orangeplanet.api_response.exception.BaseErrorCode;
+import isang.orangeplanet.global.api_response.dto.ApiDto;
+import isang.orangeplanet.global.api_response.exception.BaseErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

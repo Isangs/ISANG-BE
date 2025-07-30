@@ -1,19 +1,19 @@
 spring:
   config:
     activate:
-      on-profile: dev
+      on-profile: local
     import: application.yml
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL_DEV}
-    username: ${DB_USERNAME_DEV}
-    password: ${DB_PW_DEV}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PW}
 
   data:
     redis:
       port: 6379
-      host: ${REDIS_HOST_DEV}
+      host: ${REDIS_HOST}
       repositories:
         enabled: false
 
@@ -23,9 +23,9 @@ spring:
 #        registration:
 #          kakao:
 #            client-name: kakao
-#            client-id: ${KAKAO_CLIENT_ID_DEV}
-#            client-secret: ${KAKAO_SECRET_KEY_DEV}
-#            redirect-uri: ${REDIRECT_URL_DEV}
+#            client-id: ${KAKAO_CLIENT_ID}
+#            client-secret: ${KAKAO_SECRET_KEY}
+#            redirect-uri: ${REDIRECT_URL}
 #            authorization-grant-type: authorization_code
 #            scope:
 #              - name

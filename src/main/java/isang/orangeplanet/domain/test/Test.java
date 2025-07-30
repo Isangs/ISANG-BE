@@ -1,17 +1,17 @@
 package isang.orangeplanet.domain.test;
 
+import isang.orangeplanet.global.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Builder
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EntityListeners(AuditingEntityListener.class)
-public class Test {
+@Table(name = "test")
+public class Test extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,5 +22,4 @@ public class Test {
 
   @Comment("내용")
   private String content;
-
 }

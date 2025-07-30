@@ -1,10 +1,11 @@
-package isang.orangeplanet.api_response;
+package isang.orangeplanet.global.api_response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import isang.orangeplanet.api_response.status.SuccessStatus;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import isang.orangeplanet.global.api_response.status.SuccessStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,10 +13,10 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonPropertyOrder
 public class ApiResponse<T> {
 
-  @JsonProperty("is_success")
   private final Boolean isSuccess;
   private final String code;
   private final String message;

@@ -1,4 +1,4 @@
-package isang.orangeplanet.api_response.dto;
+package isang.orangeplanet.global.api_response.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
