@@ -64,6 +64,10 @@ dependencies {
     implementation "org.junit.jupiter:junit-jupiter"
 }
 
+jar {
+    enabled = false
+}
+
 clean {
     delete file('src/main/generated')
 }
