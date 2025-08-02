@@ -1,7 +1,7 @@
 spring:
   config:
     activate:
-      on-profile: pord
+      on-profile: prod
     import: application.yml
 
   datasource:
