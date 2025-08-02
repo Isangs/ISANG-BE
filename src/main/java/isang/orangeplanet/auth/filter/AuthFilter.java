@@ -53,14 +53,7 @@ public class AuthFilter extends OncePerRequestFilter {
         String authRefreshTokenHeader = request.getHeader("Refresh-Token");
 
         if (authRefreshTokenHeader != null && authHeader.startsWith("Bearer ")) {
-          String refreshToken = authHeader.substring(7);
-
-          if (JwtUtils.getValidateToken(refreshToken)) {
-            this.setAuthentication(id, role);
-          } else {
-            filterChain.doFilter(request, this.errorResponse(response));
-            return;
-          }
+          this.setAuthentication(id, role);
         } else {
           filterChain.doFilter(request, this.errorResponse(response));
           return;

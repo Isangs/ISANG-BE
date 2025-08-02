@@ -3,10 +3,12 @@ package isang.orangeplanet.auth.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import isang.orangeplanet.auth.controller.response.GetAuthInfoResponse;
+import isang.orangeplanet.auth.controller.response.GetTokenResponse;
 import isang.orangeplanet.auth.service.AuthService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +38,11 @@ public class AuthController {
   @Operation(summary = "로그인", description = "로그인 엔드포인트")
   public ApiResponse<GetAuthInfoResponse> kakaoLogin(@PathVariable("code") String code) {
     return ApiResponse.onSuccess(authService.kakaoOAuth2Login(code));
+  }
+
+  @PostMapping(value = "/refresh")
+  @Operation(summary = "Access Token 재발급", description = "새로운 Access Token 발급 엔드포인트")
+  public ApiResponse<GetTokenResponse> recreateAccessToken(@NonNull HttpServletRequest request) {
+    return ApiResponse.onSuccess(authService.recreateAccessToken(request));
   }
 }

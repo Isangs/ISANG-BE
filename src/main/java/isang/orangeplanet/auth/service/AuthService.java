@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import isang.orangeplanet.auth.KakaoAPIClient;
 import isang.orangeplanet.auth.KakaoClient;
 import isang.orangeplanet.auth.controller.response.GetAuthInfoResponse;
+import isang.orangeplanet.auth.controller.response.GetTokenResponse;
 import isang.orangeplanet.auth.dto.JwtClaimsDto;
 import isang.orangeplanet.auth.dto.JwtDto;
 import isang.orangeplanet.auth.dto.KakaoUserDto;
@@ -14,11 +15,15 @@ import isang.orangeplanet.domain.user.repository.UserRepository;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import isang.orangeplanet.global.utils.enums.Role;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +41,33 @@ public class AuthService {
   private final KakaoClient kakaoClient;
   private final KakaoAPIClient kakaoAPIClient;
   private final UserRepository userRepository;
+
+  public GetTokenResponse recreateAccessToken(HttpServletRequest request) {
+    String refreshHeader = request.getHeader("Refresh-Token");
+    if (refreshHeader != null && refreshHeader.startsWith("Bearer ")) {
+      String refreshToken = refreshHeader.substring(7);
+
+      // 해당 토큰의 유효 시간과 Redis에 있는 토큰과 동일한지 체크
+      if (JwtUtils.getValidateToken(refreshToken) && refreshToken.equals(RedisUtils.get(refreshToken))) {
+        String userId = JwtUtils.getUserId(refreshToken);
+
+        JwtDto jwtDto = JwtUtils.createToken(
+          JwtClaimsDto.builder()
+            .userId(userId)
+            .role(Role.USER)
+            .build()
+        );
+
+        return GetTokenResponse.builder()
+          .accessToken(jwtDto.getAccessToken())
+          .build();
+      } else {
+        throw new GeneralException(ErrorStatus.TOKEN_EXPIRED, "토큰이 만료되었습니다.");
+      }
+    } else {
+      throw new GeneralException(ErrorStatus.UNAUTHORIZED, "접근할 수 있는 권한이 없습니다.");
+    }
+  }
 
   public String kakaoLoginUrl() {
     return "https://kauth.kakao.com/oauth/authorize?client_id=" + clientId + "&redirect_uri=" + redirectUri + "&response_type=code";
