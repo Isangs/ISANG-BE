@@ -20,7 +20,7 @@ import java.io.IOException;
 public class AuthController {
   private final AuthService authService;
 
-  @GetMapping(value = "/oauth2/kakao")
+  @GetMapping(value = "/oauth/kakao")
   @Operation(summary = "카카오 로그인 화면 호출", description = "카카오 로그인 화면 호출 엔드포인트")
   public ApiResponse<Void> kakaoLogin(@NonNull HttpServletResponse response) {
     try {
