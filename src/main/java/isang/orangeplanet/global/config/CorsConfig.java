@@ -16,7 +16,9 @@ public class CorsConfig implements WebMvcConfigurer {
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/**")
       .allowedOriginPatterns(
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "https://prod-api.isang.site",
+        "https://api.isang.site/"
       )
       .allowedMethods("*")
       .allowedHeaders("*")
