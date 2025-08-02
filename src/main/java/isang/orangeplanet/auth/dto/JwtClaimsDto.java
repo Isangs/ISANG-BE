@@ -9,6 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class JwtClaimsDto {
-  private String nickName;
+  private String userId;
   private Role role;
 }

@@ -18,6 +18,12 @@ import java.util.List;
 
 public class AuthFilter extends OncePerRequestFilter {
 
+  private final List<String> EXCLUDE_URLS = List.of(
+    "/health",
+    "/auth/oauth/kakao",
+    "/auth/oauth/login"
+  );
+
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
@@ -26,11 +32,18 @@ public class AuthFilter extends OncePerRequestFilter {
     @NonNull HttpServletResponse response,
     @NonNull FilterChain filterChain
   ) throws ServletException, IOException {
+    for (String uri : EXCLUDE_URLS) {
+      if (request.getRequestURI().contains(uri)) {
+        filterChain.doFilter(request, response);
+        return;
+      }
+    }
+
     String authHeader = request.getHeader("Authorization");
 
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
       String accessToken = authHeader.substring(7);
-      String name = JwtUtils.getUserName(accessToken);
+      String name = JwtUtils.getUserId(accessToken);
       String role = JwtUtils.getRole(accessToken);
 
       if (JwtUtils.getValidateToken(accessToken)) {

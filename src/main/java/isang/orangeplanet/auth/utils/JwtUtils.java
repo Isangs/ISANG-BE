@@ -42,7 +42,7 @@ public class JwtUtils {
    * @return : JwtBuilder 객체 반환
    */
   public static JwtDto createToken(JwtClaimsDto dto) {
-    claims.put("name", dto.getNickName());
+    claims.put("id", dto.getUserId());
     claims.put("role", dto.getRole().name());
 
     long nowMs = System.currentTimeMillis();
@@ -79,14 +79,14 @@ public class JwtUtils {
    * @param token : 토큰
    * @return : 회원 이름 반환
    */
-  public static String getUserName(String token) {
+  public static String getUserId(String token) {
     try {
       return Jwts.parserBuilder()
         .setSigningKey(secretKey)
         .build()
         .parseClaimsJws(token)
         .getBody()
-        .get("name", String.class);
+        .get("id", String.class);
     } catch (ExpiredJwtException e) {
       throw new GeneralException(ErrorStatus.TOKEN_EXPIRED, "만료된 토큰입니다.");
     }

@@ -2,6 +2,7 @@ package isang.orangeplanet.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import isang.orangeplanet.auth.controller.response.GetAuthInfoResponse;
 import isang.orangeplanet.auth.service.AuthService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
@@ -33,8 +34,7 @@ public class AuthController {
 
   @PostMapping(value = "/oauth/login/{code}")
   @Operation(summary = "로그인", description = "로그인 엔드포인트")
-  public ApiResponse<Void> kakaoLogin(@PathVariable("code") String code) {
-    authService.kakaoOAuth2Login(code);
-    return ApiResponse.onSuccess();
+  public ApiResponse<GetAuthInfoResponse> kakaoLogin(@PathVariable("code") String code) {
+    return ApiResponse.onSuccess(authService.kakaoOAuth2Login(code));
   }
 }

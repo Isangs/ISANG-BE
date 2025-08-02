@@ -3,9 +3,15 @@ package isang.orangeplanet.auth.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import isang.orangeplanet.auth.KakaoAPIClient;
 import isang.orangeplanet.auth.KakaoClient;
+import isang.orangeplanet.auth.controller.response.GetAuthInfoResponse;
+import isang.orangeplanet.auth.dto.JwtClaimsDto;
+import isang.orangeplanet.auth.dto.JwtDto;
 import isang.orangeplanet.auth.dto.KakaoUserDto;
+import isang.orangeplanet.auth.utils.JwtUtils;
+import isang.orangeplanet.auth.utils.RedisUtils;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
+import isang.orangeplanet.global.utils.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,14 +38,30 @@ public class AuthService {
     return "https://kauth.kakao.com/oauth/authorize?client_id=" + clientId + "&redirect_uri=" + redirectUri + "&response_type=code";
   }
 
-  public void kakaoOAuth2Login(String code) {
+  public GetAuthInfoResponse kakaoOAuth2Login(String code) {
     String accessToken = this.kakaoTokenRequest(code);
     KakaoUserDto kakaoUser = this.getKakaoUserInfo(accessToken);
     System.out.println(kakaoUser.toString());
 
+    JwtDto jwtDto = JwtUtils.createToken(
+      JwtClaimsDto.builder()
+        .userId(kakaoUser.getKakaoUserId())
+        .role(Role.USER)
+        .build()
+    );
+
+    // Redis에 Refresh Token 저장
+    RedisUtils.save(jwtDto.getRefreshToken());
+
     /*
       회원 저장 로직 구현
      */
+
+    return GetAuthInfoResponse.builder()
+      .accessToken(jwtDto.getAccessToken())
+      .refreshToken(jwtDto.getRefreshToken())
+      .role(Role.USER.name())
+      .build();
   }
 
   private String kakaoTokenRequest(String code) {
