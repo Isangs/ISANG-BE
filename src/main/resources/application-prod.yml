@@ -1,0 +1,23 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: application.yml
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL_PROD}
+    username: ${DB_USERNAME_PROD}
+    password: ${DB_PW_PROD}
+
+  data:
+    redis:
+      port: 6379
+      host: ${REDIS_HOST_PROD}
+      repositories:
+        enabled: false
+
+oauth2:
+  client-id: ${KAKAO_CLIENT_ID_PROD}
+  client-secret: ${KAKAO_SECRET_KEY_PROD}
+  redirect-uri: ${REDIRECT_URI_PROD}
