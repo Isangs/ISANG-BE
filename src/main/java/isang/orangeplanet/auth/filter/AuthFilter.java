@@ -3,6 +3,8 @@ package isang.orangeplanet.auth.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import isang.orangeplanet.auth.utils.JwtUtils;
 import isang.orangeplanet.global.api_response.ApiResponse;
+import isang.orangeplanet.global.api_response.exception.GeneralException;
+import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,13 +20,12 @@ import java.util.List;
 
 public class AuthFilter extends OncePerRequestFilter {
 
+  private final ObjectMapper objectMapper = new ObjectMapper();
   private final List<String> EXCLUDE_URLS = List.of(
     "/health",
     "/auth/oauth/kakao",
     "/auth/oauth/login"
   );
-
-  private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
   protected void doFilterInternal(
@@ -43,19 +44,26 @@ public class AuthFilter extends OncePerRequestFilter {
 
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
       String accessToken = authHeader.substring(7);
-      String name = JwtUtils.getUserId(accessToken);
+      String id = JwtUtils.getUserId(accessToken);
       String role = JwtUtils.getRole(accessToken);
 
       if (JwtUtils.getValidateToken(accessToken)) {
-        this.setAuthentication(name, role);
+        this.setAuthentication(id, role);
       } else {
-        if (request.getHeader("Refresh-Token") == null) {
-          String errorResponse = objectMapper.writeValueAsString(
-            ApiResponse.onFailure("TOKEN_EXPIRED", "만료된 토큰입니다.", null)
-          );
+        String authRefreshTokenHeader = request.getHeader("Refresh-Token");
 
-          response.setContentType("application/json;charset=UTF-8");
-          response.getWriter().write(errorResponse);
+        if (authRefreshTokenHeader != null && authHeader.startsWith("Bearer ")) {
+          String refreshToken = authHeader.substring(7);
+
+          if (JwtUtils.getValidateToken(refreshToken)) {
+            this.setAuthentication(id, role);
+          } else {
+            filterChain.doFilter(request, this.errorResponse(response));
+            return;
+          }
+        } else {
+          filterChain.doFilter(request, this.errorResponse(response));
+          return;
         }
       }
     }
@@ -68,5 +76,19 @@ public class AuthFilter extends OncePerRequestFilter {
       id, null, List.of(new SimpleGrantedAuthority(role))
     );
     SecurityContextHolder.getContext().setAuthentication(auth);
+  }
+
+  private HttpServletResponse errorResponse(HttpServletResponse response) {
+    try {
+      String errorResponse = objectMapper.writeValueAsString(
+        new GeneralException(ErrorStatus.TOKEN_EXPIRED, "만료된 토큰입니다.")
+      );
+
+      response.setContentType("application/json;charset=UTF-8");
+      response.getWriter().write(errorResponse);
+      return response;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }

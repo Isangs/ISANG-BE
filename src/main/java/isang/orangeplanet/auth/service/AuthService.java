@@ -9,6 +9,8 @@ import isang.orangeplanet.auth.dto.JwtDto;
 import isang.orangeplanet.auth.dto.KakaoUserDto;
 import isang.orangeplanet.auth.utils.JwtUtils;
 import isang.orangeplanet.auth.utils.RedisUtils;
+import isang.orangeplanet.domain.user.User;
+import isang.orangeplanet.domain.user.repository.UserRepository;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import isang.orangeplanet.global.utils.enums.Role;
@@ -33,6 +35,7 @@ public class AuthService {
 
   private final KakaoClient kakaoClient;
   private final KakaoAPIClient kakaoAPIClient;
+  private final UserRepository userRepository;
 
   public String kakaoLoginUrl() {
     return "https://kauth.kakao.com/oauth/authorize?client_id=" + clientId + "&redirect_uri=" + redirectUri + "&response_type=code";
@@ -41,7 +44,6 @@ public class AuthService {
   public GetAuthInfoResponse kakaoOAuth2Login(String code) {
     String accessToken = this.kakaoTokenRequest(code);
     KakaoUserDto kakaoUser = this.getKakaoUserInfo(accessToken);
-    System.out.println(kakaoUser.toString());
 
     JwtDto jwtDto = JwtUtils.createToken(
       JwtClaimsDto.builder()
@@ -53,9 +55,21 @@ public class AuthService {
     // Redis에 Refresh Token 저장
     RedisUtils.save(jwtDto.getRefreshToken());
 
-    /*
-      회원 저장 로직 구현
-     */
+    User user = this.userRepository.findById(kakaoUser.getKakaoUserId()).orElse(null);
+
+    // 회원 정보 저장
+    if (user == null) {
+      this.userRepository.save(
+        User.builder()
+          .userId(kakaoUser.getKakaoUserId())
+          .name(kakaoUser.getNickName())
+          .nickName(kakaoUser.getNickName())
+          .profileUrl(kakaoUser.getProfileUrl())
+          .email(kakaoUser.getEmail())
+          .role(Role.USER)
+          .build()
+      );
+    }
 
     return GetAuthInfoResponse.builder()
       .accessToken(jwtDto.getAccessToken())
