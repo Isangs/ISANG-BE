@@ -17,6 +17,11 @@ spring:
       repositories:
         enabled: false
 
+oauth2:
+  client-id: ${KAKAO_CLIENT_ID} # f466915069a88878c242cead2e9e057d
+  client-secret: ${KAKAO_SECRET_KEY} # YJYUhJi6fw8FNnFnv2Sa0MYxk4OESKG7
+  redirect-uri: ${REDIRECT_URI} # http://localhost:8080/login/oauth2/code/kakao
+
 #  security:
 #    oauth2:
 #      client:
