@@ -63,10 +63,9 @@ public class AuthFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
-  private void setAuthentication(String name, String role) {
+  private void setAuthentication(String id, String role) {
     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-      name, null,
-      List.of(new SimpleGrantedAuthority(role))
+      id, null, List.of(new SimpleGrantedAuthority(role))
     );
     SecurityContextHolder.getContext().setAuthentication(auth);
   }
