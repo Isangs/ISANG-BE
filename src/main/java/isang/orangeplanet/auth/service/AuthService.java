@@ -15,8 +15,6 @@ import org.springframework.util.MultiValueMap;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-  private final KakaoClient kakaoClient;
-  private final KakaoAPIClient kakaoAPIClient;
 
   @Value("${oauth2.client-id}")
   private String clientId;
@@ -26,6 +24,9 @@ public class AuthService {
 
   @Value("${oauth2.redirect-uri}")
   private String redirectUri;
+
+  private final KakaoClient kakaoClient;
+  private final KakaoAPIClient kakaoAPIClient;
 
   public String kakaoLoginUrl() {
     return "https://kauth.kakao.com/oauth/authorize?client_id=" + clientId + "&redirect_uri=" + redirectUri + "&response_type=code";
