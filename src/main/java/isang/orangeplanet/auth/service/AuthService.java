@@ -10,20 +10,18 @@ import isang.orangeplanet.auth.dto.JwtDto;
 import isang.orangeplanet.auth.dto.KakaoUserDto;
 import isang.orangeplanet.auth.utils.JwtUtils;
 import isang.orangeplanet.auth.utils.RedisUtils;
+import isang.orangeplanet.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.domain.user.repository.UserRepository;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import isang.orangeplanet.global.utils.enums.Role;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +65,11 @@ public class AuthService {
     } else {
       throw new GeneralException(ErrorStatus.UNAUTHORIZED, "접근할 수 있는 권한이 없습니다.");
     }
+  }
+
+  public void logout() {
+    String userId = SecurityUtils.getAuthUserId();
+    RedisUtils.delete(userId);
   }
 
   public String kakaoLoginUrl() {

@@ -45,4 +45,11 @@ public class AuthController {
   public ApiResponse<GetTokenResponse> recreateAccessToken(@NonNull HttpServletRequest request) {
     return ApiResponse.onSuccess(authService.recreateAccessToken(request));
   }
+
+  @DeleteMapping(value = "/logout")
+  @Operation(summary = "로그아웃", description = "로그아웃 엔드포인트")
+  public ApiResponse<Void> logout() {
+    authService.logout();
+    return ApiResponse.onSuccess();
+  }
 }

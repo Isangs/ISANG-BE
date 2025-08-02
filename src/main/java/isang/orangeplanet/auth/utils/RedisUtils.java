@@ -27,8 +27,8 @@ public class RedisUtils {
    * @param token : Access Token
    */
   public static void save(String token) {
-    String memberId = JwtUtils.getUserId(token);
-    redisTemplate.opsForValue().set("rf-" + memberId, token, Duration.ofSeconds(604800));
+    String userId = JwtUtils.getUserId(token);
+    redisTemplate.opsForValue().set("rf-" + userId, token, Duration.ofSeconds(604800));
   }
 
   /**
@@ -37,15 +37,15 @@ public class RedisUtils {
    * @return : Refresh Token 반환
    */
   public static String get(String token) {
-    String memberId = JwtUtils.getUserId(token);
-    return (String) redisTemplate.opsForValue().get("rf-" + memberId);
+    String userId = JwtUtils.getUserId(token);
+    return (String) redisTemplate.opsForValue().get("rf-" + userId);
   }
 
   /**
    * Refresh Token을 Redis에서 제거하는 메서드
-   * @param memberId : 인증된 회원 ID
+   * @param userId : 인증된 회원 ID
    */
-  public static void delete(String memberId) {
-    redisTemplate.delete("rf-" + memberId);
+  public static void delete(String userId) {
+    redisTemplate.delete("rf-" + userId);
   }
 }
