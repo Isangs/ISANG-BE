@@ -1,4 +1,4 @@
-package isang.orangeplanet.auth;
+package isang.orangeplanet.domain.auth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import isang.orangeplanet.global.config.FeignClientConfig;

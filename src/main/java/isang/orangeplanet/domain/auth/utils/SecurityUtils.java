@@ -1,4 +1,4 @@
-package isang.orangeplanet.auth.utils;
+package isang.orangeplanet.domain.auth.utils;
 
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;

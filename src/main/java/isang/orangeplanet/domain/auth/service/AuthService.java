@@ -1,16 +1,16 @@
-package isang.orangeplanet.auth.service;
+package isang.orangeplanet.domain.auth.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import isang.orangeplanet.auth.KakaoAPIClient;
-import isang.orangeplanet.auth.KakaoClient;
-import isang.orangeplanet.auth.controller.response.GetAuthInfoResponse;
-import isang.orangeplanet.auth.controller.response.GetTokenResponse;
-import isang.orangeplanet.auth.dto.JwtClaimsDto;
-import isang.orangeplanet.auth.dto.JwtDto;
-import isang.orangeplanet.auth.dto.KakaoUserDto;
-import isang.orangeplanet.auth.utils.JwtUtils;
-import isang.orangeplanet.auth.utils.RedisUtils;
-import isang.orangeplanet.auth.utils.SecurityUtils;
+import isang.orangeplanet.domain.auth.KakaoAPIClient;
+import isang.orangeplanet.domain.auth.KakaoClient;
+import isang.orangeplanet.domain.auth.controller.response.GetAuthInfoResponse;
+import isang.orangeplanet.domain.auth.controller.response.GetTokenResponse;
+import isang.orangeplanet.domain.auth.dto.JwtClaimsDto;
+import isang.orangeplanet.domain.auth.dto.JwtDto;
+import isang.orangeplanet.domain.auth.dto.KakaoUserDto;
+import isang.orangeplanet.domain.auth.utils.JwtUtils;
+import isang.orangeplanet.domain.auth.utils.RedisUtils;
+import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.domain.user.repository.UserRepository;
 import isang.orangeplanet.global.api_response.exception.GeneralException;

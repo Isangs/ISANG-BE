@@ -1,4 +1,4 @@
-package isang.orangeplanet.auth.utils;
+package isang.orangeplanet.domain.auth.utils;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

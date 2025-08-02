@@ -1,7 +1,7 @@
-package isang.orangeplanet.auth.filter;
+package isang.orangeplanet.domain.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import isang.orangeplanet.auth.utils.JwtUtils;
+import isang.orangeplanet.domain.auth.utils.JwtUtils;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import jakarta.servlet.FilterChain;

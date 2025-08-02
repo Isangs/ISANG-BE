@@ -1,10 +1,10 @@
-package isang.orangeplanet.auth.utils;
+package isang.orangeplanet.domain.auth.utils;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import isang.orangeplanet.auth.dto.JwtClaimsDto;
-import isang.orangeplanet.auth.dto.JwtDto;
+import isang.orangeplanet.domain.auth.dto.JwtClaimsDto;
+import isang.orangeplanet.domain.auth.dto.JwtDto;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import jakarta.annotation.PostConstruct;

@@ -1,10 +1,10 @@
-package isang.orangeplanet.auth.controller;
+package isang.orangeplanet.domain.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import isang.orangeplanet.auth.controller.response.GetAuthInfoResponse;
-import isang.orangeplanet.auth.controller.response.GetTokenResponse;
-import isang.orangeplanet.auth.service.AuthService;
+import isang.orangeplanet.domain.auth.controller.response.GetAuthInfoResponse;
+import isang.orangeplanet.domain.auth.controller.response.GetTokenResponse;
+import isang.orangeplanet.domain.auth.service.AuthService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;

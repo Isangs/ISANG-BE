@@ -1,4 +1,4 @@
-package isang.orangeplanet.auth.dto;
+package isang.orangeplanet.domain.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import isang.orangeplanet.global.utils.enums.Role;

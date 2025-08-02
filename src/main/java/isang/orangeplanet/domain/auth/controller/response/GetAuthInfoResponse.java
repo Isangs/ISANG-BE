@@ -1,4 +1,4 @@
-package isang.orangeplanet.auth.controller.response;
+package isang.orangeplanet.domain.auth.controller.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

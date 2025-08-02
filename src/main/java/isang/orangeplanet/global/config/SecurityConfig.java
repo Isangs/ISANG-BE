@@ -1,6 +1,6 @@
 package isang.orangeplanet.global.config;
 
-import isang.orangeplanet.auth.filter.AuthFilter;
+import isang.orangeplanet.domain.auth.filter.AuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
