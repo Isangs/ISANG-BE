@@ -1,5 +1,6 @@
 package isang.orangeplanet.global.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Request;
 import feign.Retryer;
 import org.springframework.context.annotation.Bean;
@@ -26,5 +27,10 @@ public class FeignClientConfig {
   @Bean
   System.Logger.Level feignLoggerLevel() {
     return System.Logger.Level.ALL;
+  }
+
+  @Bean
+  public ObjectMapper objectMapper() {
+    return new ObjectMapper();
   }
 }

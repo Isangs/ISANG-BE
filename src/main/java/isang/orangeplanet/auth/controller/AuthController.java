@@ -9,9 +9,7 @@ import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -27,10 +25,16 @@ public class AuthController {
   public ApiResponse<Void> kakaoLogin(@NonNull HttpServletResponse response) {
     try {
       response.sendRedirect(authService.kakaoLoginUrl());
+      return ApiResponse.onSuccess();
     } catch (IOException e) {
       throw new GeneralException(ErrorStatus.INTERNAL_ERROR, "카카오 로그인 화면 요청중 문제가 발생했습니다.");
     }
+  }
 
+  @PostMapping(value = "/oauth/login/{code}")
+  @Operation(summary = "로그인", description = "로그인 엔드포인트")
+  public ApiResponse<Void> kakaoLogin(@PathVariable("code") String code) {
+    authService.kakaoOAuth2Login(code);
     return ApiResponse.onSuccess();
   }
 }
