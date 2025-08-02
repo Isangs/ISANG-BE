@@ -75,9 +75,9 @@ public class JwtUtils {
   }
 
   /**
-   * 회원 이름 얻는 메서드
+   * 회원 ID 얻는 메서드
    * @param token : 토큰
-   * @return : 회원 이름 반환
+   * @return : 회원 ID 반환
    */
   public static String getUserId(String token) {
     try {

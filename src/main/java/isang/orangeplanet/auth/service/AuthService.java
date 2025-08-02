@@ -23,6 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+/**
+ * AuthService : 인증 관련 Service
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -40,6 +43,11 @@ public class AuthService {
   private final KakaoAPIClient kakaoAPIClient;
   private final UserRepository userRepository;
 
+  /**
+   * Access Token 재발급 메서드
+   * @param request : HttpServletRequest 객체
+   * @return : GetTokenResponse 응답 객체 반환
+   */
   public GetTokenResponse recreateAccessToken(HttpServletRequest request) {
     String refreshHeader = request.getHeader("Refresh-Token");
     if (refreshHeader != null && refreshHeader.startsWith("Bearer ")) {
@@ -67,15 +75,27 @@ public class AuthService {
     }
   }
 
+  /**
+   * 로그아웃 (Redis에 저장된 Refresh Token 삭제)
+   */
   public void logout() {
     String userId = SecurityUtils.getAuthUserId();
     RedisUtils.delete(userId);
   }
 
+  /**
+   * 카카오 로그인 화면 리다이렉션
+   * @return : 리다이렉션 URL 반환
+   */
   public String kakaoLoginUrl() {
     return "https://kauth.kakao.com/oauth/authorize?client_id=" + clientId + "&redirect_uri=" + redirectUri + "&response_type=code";
   }
 
+  /**
+   * 로그인 메서드
+   * @param code : 인가 코드
+   * @return : GetAuthInfoResponse(로그인) 응답 객체 반환
+   */
   public GetAuthInfoResponse kakaoOAuth2Login(String code) {
     String accessToken = this.kakaoTokenRequest(code);
     KakaoUserDto kakaoUser = this.getKakaoUserInfo(accessToken);
@@ -113,6 +133,11 @@ public class AuthService {
       .build();
   }
 
+  /**
+   * Kakao Access Token 얻는 메서드
+   * @param code : 인가 코드
+   * @return : Kakao Access Token 반환
+   */
   private String kakaoTokenRequest(String code) {
     MultiValueMap<String, String> formParams = new LinkedMultiValueMap<>();
     formParams.add("grant_type", "authorization_code");
@@ -125,14 +150,17 @@ public class AuthService {
     return tokenJson.get("access_token").asText();
   }
 
+  /**
+   * Kakao Access Token을 사용해서 사용자 정보 얻는 메서드
+   * @param accessToken : Access Token
+   * @return : KakaoUserDto 객체 반환
+   */
   private KakaoUserDto getKakaoUserInfo(String accessToken) {
-    JsonNode userInfoJson = kakaoAPIClient.userInfo("Bearer " + accessToken);
-
     try {
+      JsonNode userInfoJson = kakaoAPIClient.userInfo("Bearer " + accessToken);
       return KakaoUserDto.builder()
-        .kakaoUserId(
-          userInfoJson.get("id").asText()
-        ).nickName(
+        .kakaoUserId(userInfoJson.get("id").asText())
+        .nickName(
           userInfoJson.get("kakao_account")
             .get("profile")
             .get("nickname")
