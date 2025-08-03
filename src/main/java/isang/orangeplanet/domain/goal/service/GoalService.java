@@ -16,11 +16,19 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * GoalService : 목표 관련 Service
+ */
 @Service
 @RequiredArgsConstructor
 public class GoalService {
   private final JpaGoalRepository jpaGoalRepository;
 
+  /**
+   * 목표 생성 메서드
+   * @param request : CreateGoalRequest 객체
+   * @return : 생성된 목표 반환
+   */
   public GetGoalResponse createGoal(CreateGoalRequest request) {
     User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
 
@@ -41,6 +49,11 @@ public class GoalService {
       .build();
   }
 
+  /**
+   * 특정 목표 조회 메서드
+   * @param goalId : 목표 ID
+   * @return : 특정 목표 반환
+   */
   public GetGoalResponse getGoal(String goalId) {
     Goal goal = this.jpaGoalRepository.findById(Long.parseLong(goalId))
       .orElseThrow(() -> new GeneralException(ErrorStatus.KEY_NOT_EXIST, "목표를 찾을 수 없습니다."));
@@ -52,6 +65,10 @@ public class GoalService {
       .build();
   }
 
+  /**
+   * 목표 목록 조회 메서드
+   * @return : 목표 목록 반환
+   */
   public ListGoalResponse goalList() {
     User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
     List<GetGoalResponse> goalList = new ArrayList<>();
@@ -74,6 +91,10 @@ public class GoalService {
       .build();
   }
 
+  /**
+   * 특정 목표 삭제 메서드
+   * @param goalId : 목표 ID
+   */
   public void deleteGoal(String goalId) {
     this.jpaGoalRepository.deleteById(Long.parseLong(goalId));
   }
