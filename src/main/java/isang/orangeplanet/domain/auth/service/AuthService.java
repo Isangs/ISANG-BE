@@ -122,6 +122,9 @@ public class AuthService {
           .profileUrl(kakaoUser.getProfileUrl())
           .email(kakaoUser.getEmail())
           .role(Role.USER)
+          .introduce("")
+          .level(0L)
+          .totalScore(0L)
           .build()
       );
     }

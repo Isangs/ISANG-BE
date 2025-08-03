@@ -37,7 +37,7 @@ public class DetailUserResponse {
   private Role role;
 
   @Schema(description = "레벨")
-  private int level;
+  private long level;
 
   @Schema(description = "총 점수")
   private long totalScore;
