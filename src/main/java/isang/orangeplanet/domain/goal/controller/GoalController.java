@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import isang.orangeplanet.domain.goal.controller.request.CreateGoalRequest;
 import isang.orangeplanet.domain.goal.controller.response.GetGoalResponse;
+import isang.orangeplanet.domain.goal.controller.response.ListGoalResponse;
 import isang.orangeplanet.domain.goal.service.GoalService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,12 @@ public class GoalController {
   @Operation(summary = "특정 목표 조회", description = "특정 목표 조회 엔드포인트")
   public ApiResponse<GetGoalResponse> getGoal(@PathVariable("id") String goalId) {
     return ApiResponse.onSuccess(this.goalService.getGoal(goalId));
+  }
+
+  @GetMapping(value = "/list")
+  @Operation(summary = "목표 목록 조회", description = "목표 목록 조회 엔드포인트")
+  public ApiResponse<ListGoalResponse> goalList() {
+    return ApiResponse.onSuccess(this.goalService.goalList());
   }
 
   @DeleteMapping(value = "/delete/{id}")
