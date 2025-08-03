@@ -19,12 +19,19 @@ public class GoalController {
   @PostMapping(value = "/create")
   @Operation(summary = "목표 생성", description = "목표 생성 엔드포인트")
   public ApiResponse<GetGoalResponse> createGoal(@RequestBody CreateGoalRequest request) {
-    return ApiResponse.onSuccess(goalService.createGoal(request));
+    return ApiResponse.onSuccess(this.goalService.createGoal(request));
   }
 
   @GetMapping(value = "/{id}")
   @Operation(summary = "특정 목표 조회", description = "특정 목표 조회 엔드포인트")
   public ApiResponse<GetGoalResponse> getGoal(@PathVariable("id") String goalId) {
-    return ApiResponse.onSuccess(goalService.getGoal(goalId));
+    return ApiResponse.onSuccess(this.goalService.getGoal(goalId));
+  }
+
+  @DeleteMapping(value = "/delete/{id}")
+  @Operation(summary = "특정 목표 삭제", description = "특정 목표 삭제 엔드포인트")
+  public ApiResponse<Void> deleteGoal(@PathVariable("id") String goalId) {
+    this.goalService.deleteGoal(goalId);
+    return ApiResponse.onSuccess();
   }
 }

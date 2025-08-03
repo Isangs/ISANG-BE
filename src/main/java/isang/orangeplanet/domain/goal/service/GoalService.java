@@ -47,4 +47,8 @@ public class GoalService {
       .colorCode(goal.getColorCode())
       .build();
   }
+
+  public void deleteGoal(String goalId) {
+    this.jpaGoalRepository.deleteById(Long.parseLong(goalId));
+  }
 }
