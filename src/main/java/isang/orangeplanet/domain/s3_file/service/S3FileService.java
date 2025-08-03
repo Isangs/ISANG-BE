@@ -4,6 +4,7 @@ import isang.orangeplanet.domain.s3_file.S3File;
 import isang.orangeplanet.domain.s3_file.repository.S3FileRepository;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -66,6 +67,7 @@ public class S3FileService {
    * S3 파일 삭제 메서드
    * @param fileUrl : S3 Url
    */
+  @Transactional
   public void deleteFile(String fileUrl) {
     String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
 
