@@ -48,10 +48,7 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.17.2'
 
     // AWS S3
-//    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
-
-    // OAuth2 Client
-//    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
     // OpenFeign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
