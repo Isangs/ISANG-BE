@@ -36,12 +36,13 @@ spring:
       region:
         static: ap-northeast-2
 
+  ai:
+    openai:
+      api-key: ${GPT_API_KEY}
+
 jwt:
   secret: ${JWT}
 
 crypto:
   private-key: ${CRYPTO_PRIVATE_KEY}
   transformation: ${CRYPTO_TRANSFORMATION}
-
-gpt:
-  api-key: ${GPT_API_KEY}
