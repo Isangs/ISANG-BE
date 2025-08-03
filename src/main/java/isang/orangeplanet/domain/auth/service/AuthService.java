@@ -12,7 +12,7 @@ import isang.orangeplanet.domain.auth.utils.JwtUtils;
 import isang.orangeplanet.domain.auth.utils.RedisUtils;
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.user.User;
-import isang.orangeplanet.domain.user.repository.UserRepository;
+import isang.orangeplanet.domain.user.repository.JpaUserRepository;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import isang.orangeplanet.global.utils.enums.Role;
@@ -41,7 +41,7 @@ public class AuthService {
 
   private final KakaoClient kakaoClient;
   private final KakaoAPIClient kakaoAPIClient;
-  private final UserRepository userRepository;
+  private final JpaUserRepository userRepository;
 
   /**
    * Access Token 재발급 메서드
@@ -122,6 +122,9 @@ public class AuthService {
           .profileUrl(kakaoUser.getProfileUrl())
           .email(kakaoUser.getEmail())
           .role(Role.USER)
+          .introduce("")
+          .level(0L)
+          .totalScore(0L)
           .build()
       );
     }
