@@ -33,7 +33,7 @@ public class SecurityConfig {
 
     http.authorizeHttpRequests(authorizeRequests -> {
       authorizeRequests.requestMatchers( // Security 인증 filter 패스
-        "/health", "/auth/oauth/kakao", "/auth/oauth/login/**", "/s3/**"
+        "/health", "/auth/oauth/kakao", "/auth/oauth/login/**", "/s3/**", "/enum/**"
       ).permitAll()
       .requestMatchers( // Swagger 관련 Url 처리
         "/v3/api-docs/**",
