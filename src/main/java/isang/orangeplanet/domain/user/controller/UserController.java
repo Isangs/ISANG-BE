@@ -9,6 +9,9 @@ import isang.orangeplanet.global.api_response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * UserController : 회원 관련 Controller
+ */
 @RestController
 @RequestMapping(value = "/user")
 @RequiredArgsConstructor
@@ -16,12 +19,21 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
   private final UserService userService;
 
+  /**
+   * 회원 상세 정보 조회 엔드포인트
+   * @return : 회원 정보 반환
+   */
   @GetMapping(value = "/detail")
   @Operation(summary = "회원 상세 정보 조회", description = "회원 상세 정보 조회 엔드포인트")
   public ApiResponse<DetailUserResponse> getDetailUser() {
     return ApiResponse.onSuccess(this.userService.getDetailUser());
   }
 
+  /**
+   * 회원 정보 수정 엔드포인트
+   * @param request : UpdateUserRequest 객체
+   * @return : 공통 응답 반환
+   */
   @PatchMapping(value = "/update")
   @Operation(summary = "회원 정보 수정", description = "회원 정보 수정 엔드포인트")
   public ApiResponse<Void> updateUser(@RequestBody UpdateUserRequest request) {

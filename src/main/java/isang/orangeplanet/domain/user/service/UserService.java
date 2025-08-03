@@ -10,12 +10,19 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * UserService : 회원 관련 Service
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class UserService {
   private final UpdateUserRepository updateUserRepository;
 
+  /**
+   * 회원 상세 정보 조회
+   * @return : 회원 정보 반환
+   */
   public DetailUserResponse getDetailUser() {
     User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
     return DetailUserResponse.builder()
@@ -31,6 +38,10 @@ public class UserService {
       .build();
   }
 
+  /**
+   * 회원 정보 수정
+   * @param request : UpdateUserRequest 객체
+   */
   public void updateUser(UpdateUserRequest request) {
     this.updateUserRepository.update(request);
   }
