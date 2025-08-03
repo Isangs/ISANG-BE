@@ -7,10 +7,7 @@ import isang.orangeplanet.domain.goal.controller.response.GetGoalResponse;
 import isang.orangeplanet.domain.goal.service.GoalService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/goal")
@@ -23,5 +20,11 @@ public class GoalController {
   @Operation(summary = "목표 생성", description = "목표 생성 엔드포인트")
   public ApiResponse<GetGoalResponse> createGoal(@RequestBody CreateGoalRequest request) {
     return ApiResponse.onSuccess(goalService.createGoal(request));
+  }
+
+  @GetMapping(value = "/{id}")
+  @Operation(summary = "특정 목표 조회", description = "특정 목표 조회 엔드포인트")
+  public ApiResponse<GetGoalResponse> getGoal(@PathVariable("id") String goalId) {
+    return ApiResponse.onSuccess(goalService.getGoal(goalId));
   }
 }

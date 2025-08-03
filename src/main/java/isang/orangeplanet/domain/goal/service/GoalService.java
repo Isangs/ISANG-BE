@@ -7,6 +7,8 @@ import isang.orangeplanet.domain.goal.controller.response.GetGoalResponse;
 import isang.orangeplanet.domain.goal.repository.JpaGoalRepository;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.domain.user.utils.UserUtils;
+import isang.orangeplanet.global.api_response.exception.GeneralException;
+import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,17 @@ public class GoalService {
     );
 
     Goal goal = this.jpaGoalRepository.findGoalByName(request.name());
+
+    return GetGoalResponse.builder()
+      .goalId(goal.getGoalId())
+      .name(goal.getName())
+      .colorCode(goal.getColorCode())
+      .build();
+  }
+
+  public GetGoalResponse getGoal(String goalId) {
+    Goal goal = this.jpaGoalRepository.findById(Long.parseLong(goalId))
+      .orElseThrow(() -> new GeneralException(ErrorStatus.KEY_NOT_EXIST, "목표를 찾을 수 없습니다."));
 
     return GetGoalResponse.builder()
       .goalId(goal.getGoalId())
