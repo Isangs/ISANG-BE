@@ -42,3 +42,6 @@ jwt:
 crypto:
   private-key: ${CRYPTO_PRIVATE_KEY}
   transformation: ${CRYPTO_TRANSFORMATION}
+
+gpt:
+  api-key: ${GPT_API_KEY}
