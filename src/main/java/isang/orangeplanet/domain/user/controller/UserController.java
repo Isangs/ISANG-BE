@@ -1,6 +1,7 @@
 package isang.orangeplanet.domain.user.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import isang.orangeplanet.domain.user.controller.response.DetailUserResponse;
 import isang.orangeplanet.domain.user.service.UserService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class UserController {
   private final UserService userService;
 
   @GetMapping(value = "/detail")
-  public ApiResponse<Void> detailUser() {
+  public ApiResponse<DetailUserResponse> detailUser() {
     return ApiResponse.onSuccess();
   }
 }
