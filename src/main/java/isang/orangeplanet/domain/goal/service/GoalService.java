@@ -3,8 +3,8 @@ package isang.orangeplanet.domain.goal.service;
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.goal.Goal;
 import isang.orangeplanet.domain.goal.controller.request.CreateGoalRequest;
-import isang.orangeplanet.domain.goal.controller.response.GetGoalResponse;
-import isang.orangeplanet.domain.goal.controller.response.ListGoalResponse;
+import isang.orangeplanet.domain.goal.controller.response.*;
+import isang.orangeplanet.domain.goal.repository.GoalRepository;
 import isang.orangeplanet.domain.goal.repository.JpaGoalRepository;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.domain.user.utils.UserUtils;
@@ -23,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GoalService {
   private final JpaGoalRepository jpaGoalRepository;
+  private final GoalRepository goalRepository;
 
   /**
    * 목표 생성 메서드
@@ -88,6 +89,32 @@ public class GoalService {
 
     return ListGoalResponse.builder()
       .goalList(goalList)
+      .build();
+  }
+
+  public ListDetailGoalResponse listDetailGoal() {
+    String userId = SecurityUtils.getAuthUserId();
+    List<DetailGoalResponse> detailGoalList = new ArrayList<>();
+
+    List<GetGoalDto> dto = this.goalRepository.listDetailGoal(userId);
+    dto.forEach(g -> {
+      int max = Math.toIntExact(Math.max(1, g.getMaxScore()));
+      int percent = (int) Math.round(100.0 * g.getScore() / max);
+
+      detailGoalList.add(
+        DetailGoalResponse.builder()
+          .goalId(g.getGoalId())
+          .name(g.getName())
+          .score((int) g.getScore())
+          .maxScore((int) g.getMaxScore())
+          .colorCode(g.getColorCode())
+          .percentage(percent)
+          .build()
+      );
+    });
+
+    return ListDetailGoalResponse.builder()
+      .goalList(detailGoalList)
       .build();
   }
 
