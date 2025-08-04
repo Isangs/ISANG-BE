@@ -40,4 +40,16 @@ public class TaskController {
   public ApiResponse<ListTaskResponse> getTaskList() {
     return ApiResponse.onSuccess(taskService.getTaskList());
   }
+
+  /**
+   * 특정 할일 삭제 엔드포인트
+   * @param taskId : 할일 ID
+   * @return : 공통 응답 객체 반환
+   */
+  @DeleteMapping(value = "/delete/{id}")
+  @Operation(summary = "특정 할일 삭제", description = "특정 할일 삭제 엔드포인트")
+  public ApiResponse<Void> deleteTask(@PathVariable("id") String taskId) {
+    this.taskService.deleteTask(taskId);
+    return ApiResponse.onSuccess();
+  }
 }

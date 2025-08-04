@@ -161,6 +161,14 @@ public class TaskService {
   }
 
   /**
+   * 특정 할일 삭제 메서드
+   * @param taskId : 할일 ID
+   */
+  public void deleteTask(String taskId) {
+    this.jpaTaskRepository.deleteById(Long.parseLong(taskId));
+  }
+
+  /**
    * 우선순위를 Enum 값으로 만들기
    * @param priority : 우선순위 점수(?)
    * @return : Priority Enum 반환
