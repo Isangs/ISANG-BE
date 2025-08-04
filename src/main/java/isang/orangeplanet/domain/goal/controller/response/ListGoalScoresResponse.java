@@ -14,8 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Schema(description = "목표 상세 목록 조회 응답 객체")
-public class ListDetailGoalResponse {
+public class ListGoalScoresResponse {
 
   @Schema(description = "목표 목록")
-  private List<DetailGoalResponse> goalList;
+  private List<ListGoalScoresDto> goalList;
 }
