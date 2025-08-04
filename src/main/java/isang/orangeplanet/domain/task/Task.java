@@ -2,6 +2,7 @@ package isang.orangeplanet.domain.task;
 
 import isang.orangeplanet.domain.goal.Goal;
 import isang.orangeplanet.domain.record.Record;
+import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.global.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,6 +42,10 @@ public class Task extends BaseTimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "goal_id")
   private Goal goal;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private User user;
 
   @Builder.Default
   @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)

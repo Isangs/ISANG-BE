@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Priority {
 
-  HIGH("높음", 90),
+  HIGH("높음", 80),
   NORMAL("보통", 50),
   LOW("낮음", 20);
 

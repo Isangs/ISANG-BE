@@ -4,20 +4,26 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.goal.Goal;
+import isang.orangeplanet.domain.goal.controller.response.GetGoalResponse;
 import isang.orangeplanet.domain.goal.repository.JpaGoalRepository;
 import isang.orangeplanet.domain.task.Task;
 import isang.orangeplanet.domain.task.controller.request.CreateTaskRequest;
+import isang.orangeplanet.domain.task.controller.response.ListTaskDto;
+import isang.orangeplanet.domain.task.controller.response.ListTaskResponse;
 import isang.orangeplanet.domain.task.repository.JpaTaskRepository;
+import isang.orangeplanet.domain.task.repository.TaskRepository;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.domain.user.utils.UserUtils;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import isang.orangeplanet.global.utils.enums.Priority;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,10 +32,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class TaskService {
 
   private final JpaGoalRepository jpaGoalRepository;
   private final JpaTaskRepository jpaTaskRepository;
+  private final TaskRepository taskRepository;
   private final ObjectMapper objectMapper;
   private final ChatClient chatClient;
 
@@ -83,7 +91,8 @@ public class TaskService {
 
     if (request.priority().isEmpty()) { // 우선순위가 비어있다면 AI 호출
       // 실제 AI한테 날릴 프롬프트
-      String prompt = request.name() + " 할일과" + goal.getName() + " 목표와 얼마나 연관있는지 백분율로 구해주고 {\"percent\":\"70\"} 형식으로 반환해줘";
+      String prompt = "사용자의" + request.name() + "와" + goal.getName() + "의 연관도를 0~100 사이 정수(percent)로 계산한다.\n" +
+        "설명, 말머리, 코드블록, 여는/닫는 텍스트 없이 **JSON만** 출력한다.\n" + "출력 형식(반드시 준수):\n" + "{\"percent\": 50}";
 
       try {
         // AI 답변을 JSON으로 변환
@@ -107,11 +116,65 @@ public class TaskService {
         .name(request.name())
         .priority(percentage)
         .deadline(request.deadline())
-        .score(0L)
+        .score(100L)
         .maxScore(1000L)
         .goal(goal)
+        .user(user)
         .build()
     );
+  }
+
+  /**
+   * 전체 할일 목록 조회 메서드
+   * @return : 전체 할일 목록 반환
+   */
+  public ListTaskResponse getTaskList() {
+    String userId = SecurityUtils.getAuthUserId();
+    List<ListTaskDto> taskList =  new ArrayList<>();
+
+    List<Task> task = this.taskRepository.taskList(userId);
+    task.forEach(t -> {
+      int max = Math.toIntExact(Math.max(1, t.getMaxScore()));
+      int percent = (int) Math.round(100.0 * t.getScore() / max);
+
+      taskList.add(
+        ListTaskDto.builder()
+          .taskId(t.getTaskId())
+          .goal(
+            GetGoalResponse.builder()
+              .goalId(t.getGoal().getGoalId())
+              .name(t.getGoal().getName())
+              .colorCode(t.getGoal().getColorCode())
+              .build()
+          )
+          .name(t.getName())
+          .priority(this.enumPriority(t.getPriority()))
+          .percentageScore(percent)
+          .deadline(t.getDeadline())
+          .build()
+      );
+    });
+
+    return ListTaskResponse.builder()
+      .taskList(taskList)
+      .build();
+  }
+
+  /**
+   * 우선순위를 Enum 값으로 만들기
+   * @param priority : 우선순위 점수(?)
+   * @return : Priority Enum 반환
+   */
+  private Priority enumPriority(int priority) {
+    if (priority >= 80) {
+      return Priority.HIGH;
+    } else if (priority >= 50) {
+      return Priority.NORMAL;
+    } else if (priority >= 20) {
+      return Priority.LOW;
+    } else {
+      return Priority.NORMAL;
+    }
   }
 
   /**
