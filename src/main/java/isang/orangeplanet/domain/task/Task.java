@@ -27,7 +27,7 @@ public class Task extends BaseTimeEntity {
   private String name;
 
   @Column(name = "priority", nullable = false)
-  private String priority;
+  private Integer priority;
 
   @Column(name = "deadline", nullable = false)
   private LocalDateTime deadline;
