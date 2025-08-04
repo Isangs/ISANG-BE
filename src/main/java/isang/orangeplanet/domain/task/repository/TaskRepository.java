@@ -25,4 +25,14 @@ public class TaskRepository {
       .orderBy(task.priority.desc())
       .fetch();
   }
+
+  public List<Task> taskListByGoalId(long goalId, String userId) {
+    return this.queryFactory.selectFrom(task)
+      .where(
+        task.user.userId.eq(userId),
+        task.goal.goalId.eq(goalId)
+      )
+      .orderBy(task.priority.desc())
+      .fetch();
+  }
 }

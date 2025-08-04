@@ -6,10 +6,16 @@ import isang.orangeplanet.domain.goal.controller.request.CreateGoalRequest;
 import isang.orangeplanet.domain.goal.controller.response.*;
 import isang.orangeplanet.domain.goal.repository.GoalRepository;
 import isang.orangeplanet.domain.goal.repository.JpaGoalRepository;
+import isang.orangeplanet.domain.task.Task;
+import isang.orangeplanet.domain.task.controller.response.ListTaskDto;
+import isang.orangeplanet.domain.task.controller.response.ListTaskResponse;
+import isang.orangeplanet.domain.task.repository.TaskRepository;
+import isang.orangeplanet.domain.task.service.TaskService;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.domain.user.utils.UserUtils;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +27,12 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class GoalService {
   private final JpaGoalRepository jpaGoalRepository;
   private final GoalRepository goalRepository;
+  private final TaskRepository taskRepository;
+  private final TaskService taskService;
 
   /**
    * 목표 생성 메서드
@@ -115,6 +124,38 @@ public class GoalService {
 
     return ListDetailGoalResponse.builder()
       .goalList(detailGoalList)
+      .build();
+  }
+
+  public ListTaskResponse listTask(String goalId) {
+    String userId = SecurityUtils.getAuthUserId();
+    List<ListTaskDto> taskList =  new ArrayList<>();
+
+    List<Task> task = this.taskRepository.taskListByGoalId(Long.parseLong(goalId), userId);
+    task.forEach(t -> {
+      int max = Math.toIntExact(Math.max(1, t.getMaxScore()));
+      int percent = (int) Math.round(100.0 * t.getScore() / max);
+
+      taskList.add(
+        ListTaskDto.builder()
+          .taskId(t.getTaskId())
+          .goal(
+            GetGoalResponse.builder()
+              .goalId(t.getGoal().getGoalId())
+              .name(t.getGoal().getName())
+              .colorCode(t.getGoal().getColorCode())
+              .build()
+          )
+          .name(t.getName())
+          .priority(this.taskService.enumPriority(t.getPriority()))
+          .percentageScore(percent)
+          .deadline(t.getDeadline())
+          .build()
+      );
+    });
+
+    return ListTaskResponse.builder()
+      .taskList(taskList)
       .build();
   }
 
