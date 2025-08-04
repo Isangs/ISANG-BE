@@ -29,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class GoalService {
+
   private final JpaGoalRepository jpaGoalRepository;
   private final GoalRepository goalRepository;
   private final TaskRepository taskRepository;
@@ -101,9 +102,13 @@ public class GoalService {
       .build();
   }
 
-  public ListDetailGoalResponse listDetailGoal() {
+  /**
+   * 목표별 점수 목록 조회 메서드
+   * @return : 목표별 점수 목록 반환
+   */
+  public ListGoalScoresResponse goalScoresList() {
     String userId = SecurityUtils.getAuthUserId();
-    List<DetailGoalResponse> detailGoalList = new ArrayList<>();
+    List<ListGoalScoresDto> detailGoalList = new ArrayList<>();
 
     List<GetGoalDto> dto = this.goalRepository.listDetailGoal(userId);
     dto.forEach(g -> {
@@ -111,7 +116,7 @@ public class GoalService {
       int percent = (int) Math.round(100.0 * g.getScore() / max);
 
       detailGoalList.add(
-        DetailGoalResponse.builder()
+        ListGoalScoresDto.builder()
           .goalId(g.getGoalId())
           .name(g.getName())
           .score((int) g.getScore())
@@ -122,12 +127,17 @@ public class GoalService {
       );
     });
 
-    return ListDetailGoalResponse.builder()
+    return ListGoalScoresResponse.builder()
       .goalList(detailGoalList)
       .build();
   }
 
-  public ListTaskResponse listTask(String goalId) {
+  /**
+   * 목표별 할일 목록 조회 메서드
+   * @param goalId : 목표 ID
+   * @return : 해당 목표의 할일 목록 반환
+   */
+  public ListTaskResponse goalTaskList(String goalId) {
     String userId = SecurityUtils.getAuthUserId();
     List<ListTaskDto> taskList =  new ArrayList<>();
 

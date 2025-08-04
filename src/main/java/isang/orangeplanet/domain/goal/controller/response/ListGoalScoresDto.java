@@ -12,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Schema(description = "목표 상세 조회 응답 객체")
-public class DetailGoalResponse {
+public class ListGoalScoresDto {
 
   @Schema(description = "목표 ID")
   private long goalId;
