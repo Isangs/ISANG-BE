@@ -1,8 +1,11 @@
 package isang.orangeplanet.domain.enum_api.service;
 
-import isang.orangeplanet.domain.enum_api.controller.response.ListEnumDto;
-import isang.orangeplanet.domain.enum_api.controller.response.ListEnumResponse;
+import isang.orangeplanet.domain.enum_api.controller.response.ListBadgeEnumDto;
+import isang.orangeplanet.domain.enum_api.controller.response.ListPriorityEnumDto;
+import isang.orangeplanet.domain.enum_api.controller.response.ListBadgeEnumResponse;
+import isang.orangeplanet.domain.enum_api.controller.response.ListPriorityEnumResponse;
 import isang.orangeplanet.global.utils.enums.Badge;
+import isang.orangeplanet.global.utils.enums.Priority;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +21,10 @@ public class EnumService {
    * Badge Enum 목록 조회
    * @return : Badge Enum 응답 객체 반환
    */
-  public ListEnumResponse getBadgeEnumList() {
-    List<ListEnumDto> enumList = Stream.of(Badge.values())
+  public ListBadgeEnumResponse getBadgeEnumList() {
+    List<ListBadgeEnumDto> enumList = Stream.of(Badge.values())
       .map(e ->
-        ListEnumDto.builder()
+        ListBadgeEnumDto.builder()
           .code(e.name())
           .badge(e.getName())
           .desc(e.getDesc())
@@ -29,8 +32,27 @@ public class EnumService {
           .build()
       ).toList();
 
-    return ListEnumResponse.builder()
+    return ListBadgeEnumResponse.builder()
       .badgeList(enumList)
+      .build();
+  }
+
+  /**
+   * Priority Enum 목록 조회
+   * @return : Priority Enum 응답 객체 반환
+   */
+  public ListPriorityEnumResponse getPriorityEnumList() {
+    List<ListPriorityEnumDto> enumList = Stream.of(Priority.values())
+      .map(e ->
+        ListPriorityEnumDto.builder()
+          .code(e.name())
+          .priority(e.getValue())
+          .score(e.getScore())
+          .build()
+      ).toList();
+
+    return ListPriorityEnumResponse.builder()
+      .priorityList(enumList)
       .build();
   }
 }

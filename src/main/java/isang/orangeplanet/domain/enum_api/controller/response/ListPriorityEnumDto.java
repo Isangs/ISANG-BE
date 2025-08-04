@@ -11,17 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Enum 목록 조회 DTO")
-public class ListEnumDto {
+public class ListPriorityEnumDto {
 
   @Schema(description = "enum 코드")
   private String code;
 
-  @Schema(description = "뱃지 이름")
-  private String badge;
+  @Schema(description = "우선 순위")
+  private String priority;
 
-  @Schema(description = "설명")
-  private String desc;
-
-  @Schema(description = "달성 조건")
-  private int condition;
+  @Schema(description = "점수")
+  private int score;
 }

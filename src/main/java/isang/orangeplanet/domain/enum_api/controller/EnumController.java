@@ -2,7 +2,8 @@ package isang.orangeplanet.domain.enum_api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import isang.orangeplanet.domain.enum_api.controller.response.ListEnumResponse;
+import isang.orangeplanet.domain.enum_api.controller.response.ListBadgeEnumResponse;
+import isang.orangeplanet.domain.enum_api.controller.response.ListPriorityEnumResponse;
 import isang.orangeplanet.domain.enum_api.service.EnumService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,17 @@ public class EnumController {
    */
   @GetMapping(value = "/badge")
   @Operation(summary = "뱃지", description = "뱃지 Enum 목록 조회")
-  public ApiResponse<ListEnumResponse> getBadgeEnumList() {
+  public ApiResponse<ListBadgeEnumResponse> getBadgeEnumList() {
     return ApiResponse.onSuccess(enumService.getBadgeEnumList());
+  }
+
+  /**
+   * 우선 순위 목록 조회
+   * @return : 우선 순위 Enum 목록 반환
+   */
+  @GetMapping(value = "/priority")
+  @Operation(summary = "우선 순위", description = "우선 순위 Enum 목록 조회")
+  public ApiResponse<ListPriorityEnumResponse> getPriorityEnumList() {
+    return ApiResponse.onSuccess(enumService.getPriorityEnumList());
   }
 }

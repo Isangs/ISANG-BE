@@ -16,8 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Schema(description = "Enum 조회 응답 객체")
-public class ListEnumResponse {
+public class ListBadgeEnumResponse {
 
   @Schema(description = "Enum 목록")
-  private List<ListEnumDto> badgeList;
+  private List<ListBadgeEnumDto> badgeList;
 }

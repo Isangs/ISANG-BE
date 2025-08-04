@@ -47,6 +47,10 @@ dependencies {
     implementation 'org.apache.poi:poi-ooxml:5.4.0'
     implementation 'org.jsoup:jsoup:1.17.2'
 
+    // Spring AI
+    implementation platform('org.springframework.ai:spring-ai-bom:1.0.0')
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+
     // AWS S3
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
