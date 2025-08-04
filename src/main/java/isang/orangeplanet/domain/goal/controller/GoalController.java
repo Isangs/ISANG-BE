@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import isang.orangeplanet.domain.goal.controller.request.CreateGoalRequest;
 import isang.orangeplanet.domain.goal.controller.response.GetGoalResponse;
+import isang.orangeplanet.domain.goal.controller.response.ListDetailGoalResponse;
 import isang.orangeplanet.domain.goal.controller.response.ListGoalResponse;
 import isang.orangeplanet.domain.goal.service.GoalService;
+import isang.orangeplanet.domain.task.controller.response.ListTaskResponse;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +52,18 @@ public class GoalController {
   @Operation(summary = "목표 목록 조회", description = "목표 목록 조회 엔드포인트")
   public ApiResponse<ListGoalResponse> goalList() {
     return ApiResponse.onSuccess(this.goalService.goalList());
+  }
+
+  @GetMapping(value = "/score")
+  @Operation(summary = "목표별 점수 조회", description = "목표별 점수 조회 엔드포인트")
+  public ApiResponse<ListDetailGoalResponse> listDetailGoal() {
+    return ApiResponse.onSuccess(this.goalService.listDetailGoal());
+  }
+
+  @GetMapping(value = "/task/list/{id}")
+  @Operation(summary = "목표별 할일 목록 조회", description = "목표별 할일 목록 조회 엔드포인트")
+  public ApiResponse<ListTaskResponse> listDetailGoal(@PathVariable("id") String goalId) {
+    return ApiResponse.onSuccess(this.goalService.listTask(goalId));
   }
 
   /**

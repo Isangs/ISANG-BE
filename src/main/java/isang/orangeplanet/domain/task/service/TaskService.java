@@ -173,7 +173,7 @@ public class TaskService {
    * @param priority : 우선순위 점수(?)
    * @return : Priority Enum 반환
    */
-  private Priority enumPriority(int priority) {
+  public Priority enumPriority(int priority) {
     if (priority >= 80) {
       return Priority.HIGH;
     } else if (priority >= 50) {
