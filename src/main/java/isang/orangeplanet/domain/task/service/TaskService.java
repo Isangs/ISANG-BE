@@ -116,7 +116,7 @@ public class TaskService {
         .name(request.name())
         .priority(percentage)
         .deadline(request.deadline())
-        .score(100L)
+        .score(0L)
         .maxScore(1000L)
         .goal(goal)
         .user(user)
