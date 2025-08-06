@@ -34,6 +34,7 @@ public class UserUtils {
   }
 
   public static Long getLevel(Long totalScore) {
-    return Math.max(1, Math.round(Math.pow((double) totalScore / 100, 1.23)));
+    long taskCount = Math.max(1, totalScore / 100);
+    return Math.round(Math.pow(taskCount, 0.7));
   }
 }
