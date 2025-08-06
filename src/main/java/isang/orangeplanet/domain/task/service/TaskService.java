@@ -60,21 +60,42 @@ public class TaskService {
       // 해당 회원의 모든 목표를 조회함.
       List<Goal> goalList = this.jpaGoalRepository.findGoalByUser(user)
         .orElseThrow(() -> new GeneralException(ErrorStatus.KEY_NOT_EXIST, "목표 목록을 찾을 수 없습니다."));
+      goalList.forEach(g -> System.out.println(g.getName()));
 
       // 프롬프트에 추가될 목표 목록 제작
-      StringBuffer goals = new StringBuffer("(");
+      StringBuffer goals = new StringBuffer("[");
       goalList.forEach(g -> goals.append(g.getName()).append(", "));
-      goals.append(")");
+      goals.append("]");
 
       // 실제 AI한테 날릴 프롬프트
-      String prompt = request.name() + "는" + goals + "중에서 어떤 목표에 적합할지 {\"goal\":\"공부\"} 형식으로 너가 정해서 반환해줘";
+      String prompt = null;
+      if (goalList.isEmpty()) {
+        prompt = request.name() + "는 어느 유형(goal)에 속하는지 **반드시 백틱 없이 {\"goal\": \"값\"} JSON 문자열만 반환해줘** 목표는 반드시 하나의 단어로 간결하게 작성하고 어색한 단어 없이 새로운 **하나의 유형**을 만들어서 JSON으로 반환해줘";
+      } else {
+        prompt = request.name() + "는 " + goals + " 중에서 어느 유형(goal)에 속하는지 반드시 백틱 없이 **{\"goal\": \"값\"} JSON 형식으로 반환해줘** 만약 다음 리스트에서 유사한 유형이 없다면 기존 리스트를 참고해서 어색한 단어 없이 새로운 하나의 유형을 만들어서 JSON으로 반환해줘";
+      }
 
       try {
         // AI 답변을 JSON으로 변환
-        JsonNode json = this.objectMapper.readTree(question(prompt));
+        String response = question(prompt);
+        JsonNode json = this.objectMapper.readTree(response);
 
         // 목표 추출
         String goalName = json.get("goal").asText();
+
+        // 그 목표 찾기
+        goal = this.jpaGoalRepository.findGoalByName(goalName);
+
+        // 찾은 목표가 DB에 없다면 아래 실행
+        if (goalList.isEmpty() || goal == null) {
+          this.jpaGoalRepository.save(
+            Goal.builder()
+              .name(goalName)
+              .colorCode("#87CEEB")
+              .user(user)
+              .build()
+          );
+        }
 
         // AI가 준 목표 이름으로 목표를 조회
         goal = this.jpaGoalRepository.findGoalByName(goalName);
