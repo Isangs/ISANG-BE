@@ -32,4 +32,8 @@ public class UserUtils {
     return jpaUserRepository.findById(userId)
       .orElseThrow(() -> new GeneralException(ErrorStatus.KEY_NOT_EXIST, "회원을 찾을 수 없습니다."));
   }
+
+  public static Long getLevel(Long totalScore) {
+    return Math.max(1, Math.round(Math.pow((double) totalScore / 100, 1.23)));
+  }
 }
