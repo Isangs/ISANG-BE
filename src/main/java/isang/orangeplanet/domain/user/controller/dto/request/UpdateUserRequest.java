@@ -1,4 +1,4 @@
-package isang.orangeplanet.domain.user.controller.request;
+package isang.orangeplanet.domain.user.controller.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

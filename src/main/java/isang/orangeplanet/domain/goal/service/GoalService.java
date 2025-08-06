@@ -118,7 +118,7 @@ public class GoalService {
       return ListGoalScoresDto.builder()
           .goalId(g.getGoalId())
           .name(g.getName())
-          .score((int) g.getScore())
+          .score(g.getScore())
           .maxScore((int) g.getMaxScore())
           .colorCode(g.getColorCode())
           .percentage(percent)
