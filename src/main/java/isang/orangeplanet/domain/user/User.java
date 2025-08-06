@@ -2,7 +2,6 @@ package isang.orangeplanet.domain.user;
 
 import isang.orangeplanet.domain.badge.Badge;
 import isang.orangeplanet.domain.goal.Goal;
-import isang.orangeplanet.domain.record.Record;
 import isang.orangeplanet.domain.task.Task;
 import isang.orangeplanet.global.config.jpa.CryptoConverter;
 import isang.orangeplanet.global.domain.BaseTimeEntity;
@@ -58,10 +57,6 @@ public class User extends BaseTimeEntity {
   @Builder.Default
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<Task> taskList = new ArrayList<>();
-
-  @Builder.Default
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private List<Record> recordList = new ArrayList<>();
 
   @Builder.Default
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

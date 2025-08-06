@@ -1,15 +1,12 @@
 package isang.orangeplanet.domain.task;
 
 import isang.orangeplanet.domain.goal.Goal;
-import isang.orangeplanet.domain.record.Record;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.global.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -47,7 +44,19 @@ public class Task extends BaseTimeEntity {
   @JoinColumn(name = "user_id")
   private User user;
 
-  @Builder.Default
-  @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
-  private List<Record> recordList = new ArrayList<>();
+  @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+  private Boolean isCompleted;
+
+  private Boolean isAddFeed;
+
+  private Boolean isPublic;
+
+  public void updateVisibility(Boolean isAddFeed, Boolean isPublic) {
+    this.isAddFeed = isAddFeed;
+    this.isPublic = isPublic;
+  }
+
+  public void updateIsCompleted(Boolean isCompleted) {
+    this.isCompleted = isCompleted;
+  }
 }
