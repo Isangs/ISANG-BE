@@ -40,9 +40,6 @@ public class User extends BaseTimeEntity {
   @Column(name = "introduce")
   private String introduce;
 
-  @Column(name = "level")
-  private Long level;
-
   @Column(name = "total_score")
   private Long totalScore;
 
@@ -61,4 +58,8 @@ public class User extends BaseTimeEntity {
   @Builder.Default
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<Badge> badgeList = new ArrayList<>();
+
+  public void sumTotalScore(Long score) {
+    this.totalScore += score;
+  }
 }

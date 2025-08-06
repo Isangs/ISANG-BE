@@ -152,8 +152,6 @@ public class TaskService {
         .isPublic(false)
         .priority(percentage)
         .deadline(request.deadline())
-        .score(0L)
-        .maxScore(1000L)
         .goal(goal)
         .user(user)
         .build()
@@ -166,34 +164,29 @@ public class TaskService {
    */
   public ListTaskResponse getTaskList() {
     String userId = SecurityUtils.getAuthUserId();
-    List<ListTaskDto> taskList =  new ArrayList<>();
 
-    List<Task> task = this.taskRepository.taskList(userId);
-    task.forEach(t -> {
-      int max = Math.toIntExact(Math.max(1, t.getMaxScore()));
-      int percent = (int) Math.round(100.0 * t.getScore() / max);
+    List<Task> tasks = this.taskRepository.taskList(userId);
+    int maxScore = tasks.size() * 100;
+    int percent = (int) Math.round(10000.0 / maxScore);
 
-      taskList.add(
-        ListTaskDto.builder()
-          .taskId(t.getTaskId())
-          .goal(
-            GetGoalResponse.builder()
-              .goalId(t.getGoal().getGoalId())
-              .name(t.getGoal().getName())
-              .colorCode(t.getGoal().getColorCode())
-              .build()
-          )
-          .name(t.getName())
-          .priority(this.enumPriority(t.getPriority()))
+    List<ListTaskDto> responses = tasks.stream().map(task -> {
+      GetGoalResponse goalResponse = GetGoalResponse.builder()
+          .goalId(task.getGoal().getGoalId())
+          .name(task.getGoal().getName())
+          .colorCode(task.getGoal().getColorCode())
+          .build();
+
+      return ListTaskDto.builder()
+          .taskId(task.getTaskId())
+          .goal(goalResponse)
+          .name(task.getName())
+          .priority(this.enumPriority(task.getPriority()))
           .percentageScore(percent)
-          .deadline(t.getDeadline())
-          .build()
-      );
-    });
+          .deadline(task.getDeadline())
+          .build();
+    }).toList();
 
-    return ListTaskResponse.builder()
-      .taskList(taskList)
-      .build();
+    return new ListTaskResponse(responses);
   }
 
   /**

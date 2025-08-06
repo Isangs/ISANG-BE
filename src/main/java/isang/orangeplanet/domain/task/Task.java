@@ -30,12 +30,6 @@ public class Task extends BaseTimeEntity {
   @Column(name = "deadline", nullable = false)
   private LocalDateTime deadline;
 
-  @Column(name = "score")
-  private Long score;
-
-  @Column(name = "max_score")
-  private Long maxScore;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "goal_id")
   private Goal goal;
