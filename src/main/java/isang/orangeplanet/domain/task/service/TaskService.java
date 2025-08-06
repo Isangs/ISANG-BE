@@ -8,6 +8,8 @@ import isang.orangeplanet.domain.goal.controller.response.GetGoalResponse;
 import isang.orangeplanet.domain.goal.repository.JpaGoalRepository;
 import isang.orangeplanet.domain.task.Task;
 import isang.orangeplanet.domain.task.controller.request.CreateTaskRequest;
+import isang.orangeplanet.domain.task.controller.request.UpdateTaskRequest;
+import isang.orangeplanet.domain.task.controller.response.FetchTaskVisibilityResponse;
 import isang.orangeplanet.domain.task.controller.response.ListTaskDto;
 import isang.orangeplanet.domain.task.controller.response.ListTaskResponse;
 import isang.orangeplanet.domain.task.repository.JpaTaskRepository;
@@ -40,6 +42,38 @@ public class TaskService {
   private final TaskRepository taskRepository;
   private final ObjectMapper objectMapper;
   private final ChatClient chatClient;
+
+  public FetchTaskVisibilityResponse getTaskById(Long id) {
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
+    Task task = jpaTaskRepository.findById(id).orElseThrow(() ->
+        new GeneralException(ErrorStatus.NOT_FOUND, "해당하는 할일을 찾을 수 없습니다.")
+    );
+
+    if(task.getUser() != user) {
+      throw new GeneralException(ErrorStatus.BAD_REQUEST, "자신의 할일만 조회할 수 있습니다.");
+    }
+
+    return FetchTaskVisibilityResponse.builder()
+        .isAddFeed(task.getIsAddFeed())
+        .isPublic(task.getIsPublic())
+        .build();
+  }
+
+  public void updateTask(Long id, UpdateTaskRequest request) {
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
+    Task task = jpaTaskRepository.findById(id).orElseThrow(() ->
+        new GeneralException(ErrorStatus.NOT_FOUND, "해당하는 할일을 찾을 수 없습니다.")
+    );
+
+    if(task.getUser() != user) {
+       throw new GeneralException(ErrorStatus.BAD_REQUEST, "자신의 할일만 수정할 수 있습니다.");
+    }
+
+    task.updateVisibility(
+        request.isAddRecord(),
+        request.isPublic()
+    );
+  }
 
   /**
    * 할일 추가(생성) 메서드 (Spring AI 사용)
@@ -135,10 +169,10 @@ public class TaskService {
     this.jpaTaskRepository.save(
       Task.builder()
         .name(request.name())
+        .isAddFeed(true)
+        .isPublic(false)
         .priority(percentage)
         .deadline(request.deadline())
-        .score(0L)
-        .maxScore(1000L)
         .goal(goal)
         .user(user)
         .build()
@@ -151,34 +185,29 @@ public class TaskService {
    */
   public ListTaskResponse getTaskList() {
     String userId = SecurityUtils.getAuthUserId();
-    List<ListTaskDto> taskList =  new ArrayList<>();
 
-    List<Task> task = this.taskRepository.taskList(userId);
-    task.forEach(t -> {
-      int max = Math.toIntExact(Math.max(1, t.getMaxScore()));
-      int percent = (int) Math.round(100.0 * t.getScore() / max);
+    List<Task> tasks = this.taskRepository.taskList(userId);
+    int maxScore = tasks.size() * 100;
+    int percent = (int) Math.round(10000.0 / maxScore);
 
-      taskList.add(
-        ListTaskDto.builder()
-          .taskId(t.getTaskId())
-          .goal(
-            GetGoalResponse.builder()
-              .goalId(t.getGoal().getGoalId())
-              .name(t.getGoal().getName())
-              .colorCode(t.getGoal().getColorCode())
-              .build()
-          )
-          .name(t.getName())
-          .priority(this.enumPriority(t.getPriority()))
+    List<ListTaskDto> responses = tasks.stream().map(task -> {
+      GetGoalResponse goalResponse = GetGoalResponse.builder()
+          .goalId(task.getGoal().getGoalId())
+          .name(task.getGoal().getName())
+          .colorCode(task.getGoal().getColorCode())
+          .build();
+
+      return ListTaskDto.builder()
+          .taskId(task.getTaskId())
+          .goal(goalResponse)
+          .name(task.getName())
+          .priority(this.enumPriority(task.getPriority()))
           .percentageScore(percent)
-          .deadline(t.getDeadline())
-          .build()
-      );
-    });
+          .deadline(task.getDeadline())
+          .build();
+    }).toList();
 
-    return ListTaskResponse.builder()
-      .taskList(taskList)
-      .build();
+    return new ListTaskResponse(responses);
   }
 
   /**

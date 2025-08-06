@@ -25,6 +25,8 @@ public class UserService {
    */
   public DetailUserResponse getDetailUser() {
     User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
+    Long level = UserUtils.getLevel(user.getTotalScore());
+
     return DetailUserResponse.builder()
       .userId(user.getUserId())
       .name(user.getName())
@@ -33,7 +35,7 @@ public class UserService {
       .profileUrl(user.getProfileUrl())
       .role(user.getRole())
       .introduce(user.getIntroduce())
-      .level(user.getLevel())
+      .level(level)
       .totalScore(user.getTotalScore())
       .build();
   }

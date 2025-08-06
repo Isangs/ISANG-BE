@@ -108,28 +108,24 @@ public class GoalService {
    */
   public ListGoalScoresResponse goalScoresList() {
     String userId = SecurityUtils.getAuthUserId();
-    List<ListGoalScoresDto> detailGoalList = new ArrayList<>();
 
     List<GetGoalDto> dto = this.goalRepository.listDetailGoal(userId);
-    dto.forEach(g -> {
+
+    List<ListGoalScoresDto> detailGoalList = dto.stream().map(g -> {
       int max = Math.toIntExact(Math.max(1, g.getMaxScore()));
       int percent = (int) Math.round(100.0 * g.getScore() / max);
 
-      detailGoalList.add(
-        ListGoalScoresDto.builder()
+      return ListGoalScoresDto.builder()
           .goalId(g.getGoalId())
           .name(g.getName())
           .score((int) g.getScore())
           .maxScore((int) g.getMaxScore())
           .colorCode(g.getColorCode())
           .percentage(percent)
-          .build()
-      );
-    });
+          .build();
+    }).toList();
 
-    return ListGoalScoresResponse.builder()
-      .goalList(detailGoalList)
-      .build();
+    return new ListGoalScoresResponse(detailGoalList);
   }
 
   /**
@@ -139,34 +135,29 @@ public class GoalService {
    */
   public ListTaskResponse goalTaskList(String goalId) {
     String userId = SecurityUtils.getAuthUserId();
-    List<ListTaskDto> taskList =  new ArrayList<>();
 
-    List<Task> task = this.taskRepository.taskListByGoalId(Long.parseLong(goalId), userId);
-    task.forEach(t -> {
-      int max = Math.toIntExact(Math.max(1, t.getMaxScore()));
-      int percent = (int) Math.round(100.0 * t.getScore() / max);
+    List<Task> tasks = this.taskRepository.taskListByGoalId(Long.parseLong(goalId), userId);
+    int maxScore = tasks.size() * 100;
+    int percent = (int) Math.round(10000.0 / maxScore);
 
-      taskList.add(
-        ListTaskDto.builder()
+    List<ListTaskDto> responses = tasks.stream().map(t -> {
+      GetGoalResponse goalResponse = GetGoalResponse.builder()
+          .goalId(t.getGoal().getGoalId())
+          .name(t.getGoal().getName())
+          .colorCode(t.getGoal().getColorCode())
+          .build();
+
+      return ListTaskDto.builder()
           .taskId(t.getTaskId())
-          .goal(
-            GetGoalResponse.builder()
-              .goalId(t.getGoal().getGoalId())
-              .name(t.getGoal().getName())
-              .colorCode(t.getGoal().getColorCode())
-              .build()
-          )
+          .goal(goalResponse)
           .name(t.getName())
           .priority(this.taskService.enumPriority(t.getPriority()))
           .percentageScore(percent)
           .deadline(t.getDeadline())
-          .build()
-      );
-    });
+          .build();
+    }).toList();
 
-    return ListTaskResponse.builder()
-      .taskList(taskList)
-      .build();
+    return new ListTaskResponse(responses);
   }
 
   /**

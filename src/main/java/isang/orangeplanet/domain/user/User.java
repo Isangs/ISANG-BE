@@ -2,7 +2,6 @@ package isang.orangeplanet.domain.user;
 
 import isang.orangeplanet.domain.badge.Badge;
 import isang.orangeplanet.domain.goal.Goal;
-import isang.orangeplanet.domain.record.Record;
 import isang.orangeplanet.domain.task.Task;
 import isang.orangeplanet.global.config.jpa.CryptoConverter;
 import isang.orangeplanet.global.domain.BaseTimeEntity;
@@ -41,9 +40,6 @@ public class User extends BaseTimeEntity {
   @Column(name = "introduce")
   private String introduce;
 
-  @Column(name = "level")
-  private Long level;
-
   @Column(name = "total_score")
   private Long totalScore;
 
@@ -61,9 +57,9 @@ public class User extends BaseTimeEntity {
 
   @Builder.Default
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private List<Record> recordList = new ArrayList<>();
-
-  @Builder.Default
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<Badge> badgeList = new ArrayList<>();
+
+  public void sumTotalScore(Long score) {
+    this.totalScore += score;
+  }
 }

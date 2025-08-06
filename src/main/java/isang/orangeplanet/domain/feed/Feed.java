@@ -1,6 +1,7 @@
 package isang.orangeplanet.domain.feed;
 
-import isang.orangeplanet.domain.record.Record;
+import isang.orangeplanet.domain.task.Task;
+import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.global.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,16 +19,23 @@ public class Feed extends BaseTimeEntity {
   @Column(name = "feed_id", nullable = false)
   private Long feedId;
 
-  @Column(name = "content", nullable = false)
-  private String content;
-
   @Column(name = "hearts", nullable = false)
   private Long heart;
 
   @Column(name = "likes", nullable = false)
   private Long like;
 
+  @JoinColumn(name = "user_id")
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "record_id")
-  private Record record;
+  private User user;
+
+  @JoinColumn(name = "task_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Task task;
+
+  @Column(name = "content")
+  private String content;
+
+  @Column(name = "image_url")
+  private String imageUrl;
 }
