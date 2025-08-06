@@ -30,6 +30,10 @@ public class FeedService {
       new GeneralException(ErrorStatus.BAD_REQUEST, "해당하는 할일을 찾을 수 없습니다.")
     );
 
+    if(task.getIsCompleted()) {
+      throw new GeneralException(ErrorStatus.BAD_REQUEST, "이미 할일이 마무리되었습니다.");
+    }
+
     if(task.getUser() != currentUser) {
       throw new GeneralException(ErrorStatus.BAD_REQUEST, "자신의 할일만 변경할 수 있습니다.");
     }
@@ -55,6 +59,10 @@ public class FeedService {
     Task task = jpaTaskRepository.findById(taskId).orElseThrow(() ->
         new GeneralException(ErrorStatus.BAD_REQUEST, "해당하는 할일을 찾을 수 없습니다.")
     );
+
+    if(task.getIsCompleted()) {
+      throw new GeneralException(ErrorStatus.BAD_REQUEST, "이미 할일이 마무리되었습니다.");
+    }
 
     if(task.getUser() != currentUser) {
       throw new GeneralException(ErrorStatus.BAD_REQUEST, "자신의 할일만 변경할 수 있습니다.");
