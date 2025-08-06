@@ -8,6 +8,8 @@ import isang.orangeplanet.domain.goal.controller.response.GetGoalResponse;
 import isang.orangeplanet.domain.goal.repository.JpaGoalRepository;
 import isang.orangeplanet.domain.task.Task;
 import isang.orangeplanet.domain.task.controller.request.CreateTaskRequest;
+import isang.orangeplanet.domain.task.controller.request.UpdateTaskRequest;
+import isang.orangeplanet.domain.task.controller.response.FetchTaskVisibilityResponse;
 import isang.orangeplanet.domain.task.controller.response.ListTaskDto;
 import isang.orangeplanet.domain.task.controller.response.ListTaskResponse;
 import isang.orangeplanet.domain.task.repository.JpaTaskRepository;
@@ -40,6 +42,38 @@ public class TaskService {
   private final TaskRepository taskRepository;
   private final ObjectMapper objectMapper;
   private final ChatClient chatClient;
+
+  public FetchTaskVisibilityResponse getTaskById(Long id) {
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
+    Task task = jpaTaskRepository.findById(id).orElseThrow(() ->
+        new GeneralException(ErrorStatus.NOT_FOUND, "해당하는 할일을 찾을 수 없습니다.")
+    );
+
+    if(task.getUser() != user) {
+      throw new GeneralException(ErrorStatus.BAD_REQUEST, "자신의 할일만 조회할 수 있습니다.");
+    }
+
+    return FetchTaskVisibilityResponse.builder()
+        .isAddFeed(task.getIsAddFeed())
+        .isPublic(task.getIsPublic())
+        .build();
+  }
+
+  public void updateTask(Long id, UpdateTaskRequest request) {
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
+    Task task = jpaTaskRepository.findById(id).orElseThrow(() ->
+        new GeneralException(ErrorStatus.NOT_FOUND, "해당하는 할일을 찾을 수 없습니다.")
+    );
+
+    if(task.getUser() != user) {
+       throw new GeneralException(ErrorStatus.BAD_REQUEST, "자신의 할일만 수정할 수 있습니다.");
+    }
+
+    task.updateVisibility(
+        request.isAddRecord(),
+        request.isPublic()
+    );
+  }
 
   /**
    * 할일 추가(생성) 메서드 (Spring AI 사용)
@@ -114,6 +148,8 @@ public class TaskService {
     this.jpaTaskRepository.save(
       Task.builder()
         .name(request.name())
+        .isAddFeed(true)
+        .isPublic(false)
         .priority(percentage)
         .deadline(request.deadline())
         .score(0L)
