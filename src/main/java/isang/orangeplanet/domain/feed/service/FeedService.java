@@ -35,6 +35,7 @@ public class FeedService {
     }
 
     task.updateIsCompleted(true);
+    currentUser.sumTotalScore(100L);
 
     if(task.getIsAddFeed()) {
       Feed newFeed = Feed.builder()
@@ -60,6 +61,7 @@ public class FeedService {
     }
 
     task.updateIsCompleted(true);
+    currentUser.sumTotalScore(100L);
 
     if(task.getIsAddFeed()) {
       Feed newFeed = Feed.builder()
