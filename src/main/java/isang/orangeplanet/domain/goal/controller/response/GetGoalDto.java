@@ -18,7 +18,7 @@ public class GetGoalDto {
   private String name;
 
   @Schema(description = "할일 점수")
-  private long score;
+  private Integer score;
 
   @Schema(description = "할일 최대 점수")
   private long maxScore;
