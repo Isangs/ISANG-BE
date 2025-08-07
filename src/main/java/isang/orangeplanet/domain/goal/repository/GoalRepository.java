@@ -1,6 +1,5 @@
 package isang.orangeplanet.domain.goal.repository;
 
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -9,9 +8,7 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import isang.orangeplanet.domain.goal.controller.response.GetGoalDto;
-import isang.orangeplanet.domain.goal.controller.response.ListDayOfWeekDto;
-import isang.orangeplanet.domain.goal.controller.response.ListWeeklyAchievementDto;
+import isang.orangeplanet.domain.goal.controller.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -52,38 +49,12 @@ public class GoalRepository {
     .fetch();
   }
 
-  public List<ListDayOfWeekDto> daysOfWeek(String userId) {
-    StringTemplate weekdayName = Expressions.stringTemplate(
-      "DATE_FORMAT({0}, '%W')", task.createdAt
-    );
-
-    LocalDate today = LocalDate.now();
-    int daysFromMonday = today.getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue();
-
-    LocalDate startOfWeek = today.minusDays(daysFromMonday); // 월요일
-    LocalDate endOfWeek = startOfWeek.plusDays(6); // 일요일
-
-    return this.queryFactory
-      .select(
-        Projections.fields(
-          ListDayOfWeekDto.class,
-          weekdayName.as("day"),
-          task.count().multiply(100).as("score")
-        )
-      )
-      .from(task)
-      .where(
-        task.user.userId.eq(userId),
-        task.createdAt.between(
-          startOfWeek.atStartOfDay(),
-          endOfWeek.plusDays(1).atStartOfDay().minusNanos(1)
-        )
-      )
-      .groupBy(weekdayName)
-      .fetch();
-  }
-
-
+  /**
+   * 주간 완료된 할일 목록 조회
+   * 아오 힘들어 오랜만에 쿼리 짜니까 머리 아프네..ㅎㅎ
+   * @param userId : 회원 ID
+   * @return : ListWeeklyAchievementDto 객체 반환
+   */
   public List<ListWeeklyAchievementDto> weeklyAchievement(String userId) {
     StringTemplate weekdayName = Expressions.stringTemplate(
       "DATE_FORMAT({0}, '%W')", feed.createdAt
@@ -91,45 +62,43 @@ public class GoalRepository {
 
     LocalDate today = LocalDate.now();
     int daysFromMonday = today.getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue();
-
     LocalDate startOfWeek = today.minusDays(daysFromMonday); // 월요일
     LocalDate endOfWeek = startOfWeek.plusDays(6); // 일요일
 
     return this.queryFactory.select(
-      Projections.fields(
-        ListWeeklyAchievementDto.class,
-        task.goal.goalId,
-        task.goal.name,
-        weekdayName.as("day"),
-        task.count().multiply(100).as("score"),
+        Projections.fields(
+          ListWeeklyAchievementDto.class,
+          task.goal.goalId.as("goalId"),
+          task.goal.name.as("name"),
+          weekdayName.as("day"), // 요일
+          task.count().multiply(100).as("score"), // 완료된 점수
 
-        ExpressionUtils.as( // 목표별 최대 점수
-          JPAExpressions.select(task.count().multiply(100))
-          .from(task)
-          .where(
-            task.goal.goalId.eq(goal.goalId) // 상관 쿼리 사용
-              .and(task.user.userId.eq(userId))
+          // 목표별 최대 점수
+          ExpressionUtils.as(
+            JPAExpressions.select(task.count().multiply(100))
+              .from(task)
+              .where(
+                task.goal.goalId.eq(goal.goalId)
+                  .and(task.user.userId.eq(userId))
+              ),
+            "maxScore"
           )
-          , "maxScore"
         )
       )
-    )
-    .from(task)
-    .leftJoin(feed)
-    .on(feed.task.eq(task)
-      .and( // 일주일
-        feed.createdAt.between(
-          startOfWeek.atStartOfDay(),
-          endOfWeek.plusDays(1).atStartOfDay().minusNanos(1)
-        )
+      .from(task)
+      .leftJoin(feed).on(
+        feed.task.eq(task)
+          .and(feed.createdAt.between(
+            startOfWeek.atStartOfDay(),
+            endOfWeek.plusDays(1).atStartOfDay().minusNanos(1)
+          ))
       )
-    )
-    .leftJoin(goal).on(task.goal.eq(goal))
-    .where(
-      task.user.userId.eq(userId)
-        .and(task.isCompleted.eq(true))
-    )
-    .groupBy(weekdayName, task.goal.goalId, task.goal.name)
-    .fetch();
+      .leftJoin(goal).on(task.goal.eq(goal))
+      .where(
+        task.user.userId.eq(userId)
+          .and(task.isCompleted.eq(true))
+      )
+      .groupBy(task.goal.goalId, task.goal.name, weekdayName)
+      .fetch();
   }
 }

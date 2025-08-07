@@ -3,15 +3,14 @@ package isang.orangeplanet.domain.goal.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import isang.orangeplanet.domain.goal.controller.request.CreateGoalRequest;
-import isang.orangeplanet.domain.goal.controller.response.GetGoalResponse;
-import isang.orangeplanet.domain.goal.controller.response.ListGoalScoresResponse;
-import isang.orangeplanet.domain.goal.controller.response.ListGoalResponse;
-import isang.orangeplanet.domain.goal.controller.response.ListWeeklyAchievementResponse;
+import isang.orangeplanet.domain.goal.controller.response.*;
 import isang.orangeplanet.domain.goal.service.GoalService;
 import isang.orangeplanet.domain.task.controller.response.ListTaskResponse;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * GoalController : 목표 관련 Controller
@@ -78,7 +77,7 @@ public class GoalController {
 
   @GetMapping(value = "/weekly/achievement")
   @Operation(summary = "주간 성과 조회", description = "주간 성과 조회 엔드포인트")
-  public ApiResponse<ListWeeklyAchievementResponse> weeklyAchievement() {
+  public ApiResponse<List<WeeklyGoalAchievementDto>> weeklyAchievement() {
     return ApiResponse.onSuccess(this.goalService.weeklyAchievement());
   }
 

@@ -19,10 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * GoalService : 목표 관련 Service
@@ -31,6 +28,10 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Transactional
 public class GoalService {
+
+  private final List<String> allDays = List.of(
+    "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"
+  );
 
   private final JpaGoalRepository jpaGoalRepository;
   private final GoalRepository goalRepository;
@@ -162,19 +163,59 @@ public class GoalService {
     return new ListTaskResponse(responses);
   }
 
-  public ListWeeklyAchievementResponse weeklyAchievement() {
-    String userId = SecurityUtils.getAuthUserId();
-    List<ListWeeklyAchievementDto> responses = new ArrayList<>();
+  /**
+   * 주간 성과 목록 조회 메서드
+   * @return : 주간 성과 목록 반환
+   */
+  public List<WeeklyGoalAchievementDto> weeklyAchievement() {
+    List<ListWeeklyAchievementDto> rawList = this.goalRepository.weeklyAchievement(SecurityUtils.getAuthUserId());
+    return convertToWeeklyGoals(rawList);
+  }
 
-    List<ListWeeklyAchievementDto> weeklyAchievementList = this.goalRepository.weeklyAchievement(userId);
-    weeklyAchievementList.forEach(w -> {
-      w.updateDayUpperCase(w.getDay());
-      responses.add(w);
-    });
+  /**
+   * DayList 채워넣기(?) ㅎㅎ
+   * @param rawList : 주간 완료된 할일 목록 객체
+   * @return : WeeklyGoalAchievementDto 목록 반환
+   */
+  public List<WeeklyGoalAchievementDto> convertToWeeklyGoals(List<ListWeeklyAchievementDto> rawList) {
+    Map<Long, WeeklyGoalAchievementDto> map = new LinkedHashMap<>();
+    Map<Long, Map<String, Long>> scoreByGoalAndDay = new HashMap<>();
 
-    return ListWeeklyAchievementResponse.builder()
-      .achievementList(responses)
-      .build();
+    for (ListWeeklyAchievementDto dto : rawList) {
+      map.computeIfAbsent(dto.getGoalId(), id ->
+        WeeklyGoalAchievementDto.builder()
+          .goalId(dto.getGoalId())
+          .name(dto.getName())
+          .maxScore(dto.getMaxScore().intValue())
+          .dayList(new ArrayList<>())
+          .build()
+      );
+
+      // 요일별 점수 map으로 저장
+      scoreByGoalAndDay
+        .computeIfAbsent(dto.getGoalId(), k -> new HashMap<>())
+        .put(dto.getDay().toUpperCase(), dto.getScore());
+    }
+
+    for (WeeklyGoalAchievementDto goal : map.values()) {
+      Map<String, Long> dayMap = scoreByGoalAndDay.getOrDefault(goal.getGoalId(), Collections.emptyMap());
+      int total = 0;
+
+      for (String day : allDays) {
+        Long score = dayMap.getOrDefault(day, 0L);
+        goal.getDayList().add(
+          DayScoreDto.builder()
+            .day(day)
+            .score(score)
+            .build()
+        );
+        total += score;
+      }
+
+      goal.setTotalScore(total);
+    }
+
+    return new ArrayList<>(map.values());
   }
 
   /**
