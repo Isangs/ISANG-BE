@@ -2,9 +2,10 @@ package isang.orangeplanet.domain.badge.service;
 
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.badge.BadgeProgress;
+import isang.orangeplanet.domain.badge.controller.dto.ListBadgeDto;
+import isang.orangeplanet.domain.badge.controller.response.ListBadgeResponse;
 import isang.orangeplanet.domain.badge.repository.BadgeRepository;
 import isang.orangeplanet.domain.badge.repository.JpaBadgeProgressRepository;
-import isang.orangeplanet.domain.badge.repository.JpaBadgeRepository;
 import isang.orangeplanet.domain.task.repository.TaskRepository;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.domain.user.repository.UserRepository;
@@ -19,17 +20,40 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class BadgeService {
 
-  private final JpaBadgeRepository jpaBadgeRepository;
   private final BadgeRepository badgeRepository;
   private final JpaBadgeProgressRepository jpaBadgeProgressRepository;
   private final UserRepository userRepository;
   private final TaskRepository taskRepository;
+
+  /**
+   * 획득한 뱃지 목록 조회 메서드
+   * @return : 획득한 뱃지 목록 반환
+   */
+  public ListBadgeResponse listBadge() {
+    List<ListBadgeDto> responses = new ArrayList<>();
+
+    List<Badge> badgeList = this.badgeRepository.listBadge(SecurityUtils.getAuthUserId());
+    badgeList.forEach(badge ->
+      responses.add(
+        ListBadgeDto.builder()
+          .badge(badge)
+          .name(badge.getName())
+          .build()
+      )
+    );
+
+    return ListBadgeResponse.builder()
+      .badgeList(responses)
+      .build();
+  }
 
   // 오늘 1등인 회원을 거르기 위한 스케줄러
   @Scheduled(cron = "0 0 0 * * *") // 매일 00:00
@@ -88,7 +112,7 @@ public class BadgeService {
        */
       LocalDate date = LocalDate.now();
       switch (badge) {
-        case THREE_DAY -> {
+        case THREE_DAY -> { // -------------------------------------------> 테스트 잘됨!! ㄴㅇㅅ!
           LocalDateTime today = LocalDateTime.now();
           LocalDateTime lastDate = progress.getLastCompletedAt();
 
@@ -107,6 +131,8 @@ public class BadgeService {
             progress.updateProgress(1);
           }
         }
+
+        // 아래 둘다 테스트가 복잡하다...
         case MONTHLY_KING -> {
           LocalDate lastDate = (progress.getLastCompletedAt() != null) ? progress.getLastCompletedAt().toLocalDate() : null;
           String currentUserId = SecurityUtils.getAuthUserId();
@@ -137,7 +163,7 @@ public class BadgeService {
           if (hasUncompleted) {
             this.applyProgress(progress, 7, badge); // 7점 달성 (바로 뱃지 획득)
           } else {
-            progress.updateProgress(0); // 이번 주 실패 (다음 주 다시 시작)
+            progress.updateProgress(1); // 이번 주 실패 (다음 주 다시 시작)
           }
         }
       } // 에휴.. 힘들었다..
