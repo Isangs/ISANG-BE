@@ -49,11 +49,9 @@ public class FeedService {
   }
 
   public void completeTaskWithText(Long taskId, CompleteTaskWithTextRequest request){
-    User currentUser = UserUtils.getUser(SecurityUtils.getAuthUserId());
-    Feed newFeed = completeTask(currentUser, taskId, null, request.getContent());
+    Feed newFeed = completeTask(taskId, null, request.getContent());
 
     Activity newActivity = Activity.builder()
-        .user(currentUser)
         .feed(newFeed)
         .build();
 
@@ -61,18 +59,17 @@ public class FeedService {
   }
 
   public void completeTaskWithImage(Long taskId, CompleteTaskWithImageRequest request){
-    User currentUser = UserUtils.getUser(SecurityUtils.getAuthUserId());
-    Feed newFeed = completeTask(currentUser, taskId, request.getImageUrl(), null);
+    Feed newFeed = completeTask(taskId, request.getImageUrl(), null);
 
     Activity newActivity = Activity.builder()
-        .user(currentUser)
         .feed(newFeed)
         .build();
 
     activityJpaRepository.save(newActivity);
   }
 
-  private Feed completeTask(User user, Long taskId, String imageUrl, String content){
+  private Feed completeTask(Long taskId, String imageUrl, String content){
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
     Task task = jpaTaskRepository.findById(taskId).orElseThrow(() ->
         new GeneralException(ErrorStatus.BAD_REQUEST, "해당하는 할일을 찾을 수 없습니다.")
     );
