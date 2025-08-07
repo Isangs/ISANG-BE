@@ -6,6 +6,7 @@ import isang.orangeplanet.domain.goal.controller.request.CreateGoalRequest;
 import isang.orangeplanet.domain.goal.controller.response.GetGoalResponse;
 import isang.orangeplanet.domain.goal.controller.response.ListGoalScoresResponse;
 import isang.orangeplanet.domain.goal.controller.response.ListGoalResponse;
+import isang.orangeplanet.domain.goal.controller.response.ListWeeklyAchievementResponse;
 import isang.orangeplanet.domain.goal.service.GoalService;
 import isang.orangeplanet.domain.task.controller.response.ListTaskResponse;
 import isang.orangeplanet.global.api_response.ApiResponse;
@@ -73,6 +74,12 @@ public class GoalController {
   @Operation(summary = "목표별 할일 목록 조회", description = "목표별 할일 목록 조회 엔드포인트")
   public ApiResponse<ListTaskResponse> goalTaskList(@PathVariable("id") String goalId) {
     return ApiResponse.onSuccess(this.goalService.goalTaskList(goalId));
+  }
+
+  @GetMapping(value = "/weekly/achievement")
+  @Operation(summary = "주간 성과 조회", description = "주간 성과 조회 엔드포인트")
+  public ApiResponse<ListWeeklyAchievementResponse> weeklyAchievement() {
+    return ApiResponse.onSuccess(this.goalService.weeklyAchievement());
   }
 
   /**

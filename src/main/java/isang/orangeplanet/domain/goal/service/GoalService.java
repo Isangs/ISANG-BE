@@ -19,8 +19,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.DayOfWeek;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * GoalService : 목표 관련 Service
@@ -158,6 +160,21 @@ public class GoalService {
     }).toList();
 
     return new ListTaskResponse(responses);
+  }
+
+  public ListWeeklyAchievementResponse weeklyAchievement() {
+    String userId = SecurityUtils.getAuthUserId();
+    List<ListWeeklyAchievementDto> responses = new ArrayList<>();
+
+    List<ListWeeklyAchievementDto> weeklyAchievementList = this.goalRepository.weeklyAchievement(userId);
+    weeklyAchievementList.forEach(w -> {
+      w.updateDayUpperCase(w.getDay());
+      responses.add(w);
+    });
+
+    return ListWeeklyAchievementResponse.builder()
+      .achievementList(responses)
+      .build();
   }
 
   /**

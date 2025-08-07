@@ -5,34 +5,20 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @Builder
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@Schema(description = "주간 성과 목록 조회 Dto")
-public class ListWeeklyAchievementDto {
-
-  @Schema(description = "목표 ID")
-  private Long goalId;
-
-  @Schema(description = "목표 이름")
-  private String name;
-
-//  @Schema(description = "요일")
-//  private List<ListDayOfWeekDto> dayList;
+@Schema(description = "목표별 요일 목록 조회 Dto")
+public class ListDayOfWeekDto {
 
   @Schema(description = "요일")
   private String day;
 
   @Schema(description = "점수")
   private Long score;
-
-  @Schema(description = "할일 총 점수")
-  private Long maxScore;
 
   public void updateDayUpperCase(String day) {
     this.day = day.toUpperCase();
