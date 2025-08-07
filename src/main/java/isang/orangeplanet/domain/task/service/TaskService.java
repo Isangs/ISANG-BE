@@ -170,6 +170,7 @@ public class TaskService {
         .name(request.name())
         .isAddFeed(true)
         .isPublic(false)
+        .isCompleted(false)
         .priority(percentage)
         .deadline(request.deadline())
         .goal(goal)
