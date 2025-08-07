@@ -1,7 +1,7 @@
 package isang.orangeplanet.domain.user.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import isang.orangeplanet.domain.user.controller.request.UpdateUserRequest;
+import isang.orangeplanet.domain.user.controller.dto.request.UpdateUserRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

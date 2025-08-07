@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -82,8 +81,8 @@ public class TaskService {
   public void createTask(CreateTaskRequest request) {
     User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
 
-    Goal goal = null;
-    int percentage = 0;
+    Goal goal;
+    int percentage;
 
     /*
       우리는 목표와 우선순위중 하나라도 request를 통해 받지 않았을때 그 하나를 AI가 자동으로 선정할 수 있게 로직을 설계해야 합니다.
@@ -102,7 +101,7 @@ public class TaskService {
       goals.append("]");
 
       // 실제 AI한테 날릴 프롬프트
-      String prompt = null;
+      String prompt;
       if (goalList.isEmpty()) {
         prompt = request.name() + "는 어느 유형(goal)에 속하는지 **반드시 백틱 없이 {\"goal\": \"값\"} JSON 문자열만 반환해줘** 목표는 반드시 하나의 단어로 간결하게 작성하고 어색한 단어 없이 새로운 **하나의 유형**을 만들어서 JSON으로 반환해줘";
       } else {
@@ -171,6 +170,7 @@ public class TaskService {
         .name(request.name())
         .isAddFeed(true)
         .isPublic(false)
+        .isCompleted(false)
         .priority(percentage)
         .deadline(request.deadline())
         .goal(goal)
@@ -186,7 +186,7 @@ public class TaskService {
   public ListTaskResponse getTaskList() {
     String userId = SecurityUtils.getAuthUserId();
 
-    List<Task> tasks = this.taskRepository.taskList(userId);
+    List<Task> tasks = this.taskRepository.findTaskByUserIdAndIsCompleted(userId, false);
     int maxScore = tasks.size() * 100;
     int percent = (int) Math.round(10000.0 / maxScore);
 

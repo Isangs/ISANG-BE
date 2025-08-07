@@ -2,12 +2,16 @@ package isang.orangeplanet.domain.feed.service;
 
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.feed.Feed;
+import isang.orangeplanet.domain.feed.controller.dto.FeedDto;
 import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithImageRequest;
+import isang.orangeplanet.domain.feed.controller.dto.response.FetchFeedListResponse;
+import isang.orangeplanet.domain.feed.controller.dto.response.SearchFeedListResponse;
 import isang.orangeplanet.domain.feed.repository.FeedRepository;
 import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithTextRequest;
 import isang.orangeplanet.domain.task.Task;
 import isang.orangeplanet.domain.task.repository.JpaTaskRepository;
 import isang.orangeplanet.domain.user.User;
+import isang.orangeplanet.domain.user.controller.dto.UserSimpleDto;
 import isang.orangeplanet.domain.user.utils.UserUtils;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
@@ -16,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -23,6 +29,58 @@ import org.springframework.stereotype.Service;
 public class FeedService {
   private final JpaTaskRepository jpaTaskRepository;
   private final FeedRepository feedRepository;
+
+  public SearchFeedListResponse searchFeedList(String query) {
+    List<Feed> feeds = feedRepository.findByUserNameLikeOrContentLikeOrTaskNameLike(query);
+
+    List<FeedDto> responses = feeds.stream().map(feed -> {
+      User user = feed.getUser();
+      UserSimpleDto userResponse = UserSimpleDto.builder()
+          .name(user.getName())
+          .profileImageUrl(user.getProfileUrl())
+          .build();
+
+      return FeedDto.builder()
+          .likes(feed.getLike())
+          .hearts(feed.getHeart())
+          .id(feed.getFeedId())
+          .content(feed.getContent())
+          .taskMessage(feed.getTask().getName())
+          .content(feed.getContent())
+          .profileImageUrl(feed.getImageUrl())
+          .createdAt(feed.getCreatedAt())
+          .user(userResponse)
+          .build();
+    }).toList();
+
+    return new SearchFeedListResponse(responses);
+  }
+
+  public FetchFeedListResponse fetchFeedList() {
+    List<Feed> feeds = feedRepository.findAll();
+
+    List<FeedDto> responses = feeds.stream().map(feed -> {
+      User user = feed.getUser();
+      UserSimpleDto userResponse = UserSimpleDto.builder()
+        .name(user.getName())
+        .profileImageUrl(user.getProfileUrl())
+        .build();
+
+      return FeedDto.builder()
+          .likes(feed.getLike())
+          .hearts(feed.getHeart())
+          .id(feed.getFeedId())
+          .content(feed.getContent())
+          .taskMessage(feed.getTask().getName())
+          .content(feed.getContent())
+          .profileImageUrl(feed.getImageUrl())
+          .createdAt(feed.getCreatedAt())
+          .user(userResponse)
+          .build();
+    }).toList();
+
+    return new FetchFeedListResponse(responses);
+  }
 
   public void completeTaskWithText(Long taskId, CompleteTaskWithTextRequest request){
     User currentUser = UserUtils.getUser(SecurityUtils.getAuthUserId());

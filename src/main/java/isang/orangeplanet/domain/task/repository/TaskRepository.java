@@ -19,9 +19,13 @@ public class TaskRepository {
    * @param userId : 회원 ID
    * @return : 우선순위를 기준으로 정렬된 할일 목록 반환
    */
-  public List<Task> taskList(String userId) {
+  public List<Task> findTaskByUserIdAndIsCompleted(String userId, Boolean isCompleted) {
     return this.queryFactory.selectFrom(task)
-      .where(task.user.userId.eq(userId))
+      .where(
+          task.user.userId.eq(userId).and(
+              task.isCompleted.eq(false)
+          )
+      )
       .orderBy(task.priority.desc())
       .fetch();
   }

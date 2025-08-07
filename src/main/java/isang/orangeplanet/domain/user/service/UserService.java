@@ -2,8 +2,8 @@ package isang.orangeplanet.domain.user.service;
 
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.user.User;
-import isang.orangeplanet.domain.user.controller.request.UpdateUserRequest;
-import isang.orangeplanet.domain.user.controller.response.DetailUserResponse;
+import isang.orangeplanet.domain.user.controller.dto.request.UpdateUserRequest;
+import isang.orangeplanet.domain.user.controller.dto.response.DetailUserResponse;
 import isang.orangeplanet.domain.user.repository.UpdateUserRepository;
 import isang.orangeplanet.domain.user.utils.UserUtils;
 import jakarta.transaction.Transactional;

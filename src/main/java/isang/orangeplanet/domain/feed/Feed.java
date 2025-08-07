@@ -29,8 +29,8 @@ public class Feed extends BaseTimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   private User user;
 
-  @JoinColumn(name = "task_id")
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "task_id", unique = true)
   private Task task;
 
   @Column(name = "content")

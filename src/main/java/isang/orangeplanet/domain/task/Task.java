@@ -38,11 +38,13 @@ public class Task extends BaseTimeEntity {
   @JoinColumn(name = "user_id")
   private User user;
 
-  @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+  @Column(name = "is_completed")
   private Boolean isCompleted;
 
+  @Column(name = "is_add_feed")
   private Boolean isAddFeed;
 
+  @Column(name = "is_public")
   private Boolean isPublic;
 
   public void updateVisibility(Boolean isAddFeed, Boolean isPublic) {
