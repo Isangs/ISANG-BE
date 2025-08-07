@@ -2,6 +2,7 @@ package isang.orangeplanet.domain.goal.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import isang.orangeplanet.domain.goal.controller.dto.WeeklyGoalAchievementDto;
 import isang.orangeplanet.domain.goal.controller.request.CreateGoalRequest;
 import isang.orangeplanet.domain.goal.controller.response.*;
 import isang.orangeplanet.domain.goal.service.GoalService;
@@ -75,10 +76,24 @@ public class GoalController {
     return ApiResponse.onSuccess(this.goalService.goalTaskList(goalId));
   }
 
+  /**
+   * 주간 성과 상세 조회
+   * @return 주간 성과 상세 목록 반환
+   */
   @GetMapping(value = "/weekly/achievement")
   @Operation(summary = "주간 성과 조회", description = "주간 성과 조회 엔드포인트")
   public ApiResponse<List<WeeklyGoalAchievementDto>> weeklyAchievement() {
     return ApiResponse.onSuccess(this.goalService.weeklyAchievement());
+  }
+
+  /**
+   * 목표별 달성률 조회
+   * @return 목표별 달성률 반환
+   */
+  @GetMapping(value = "/progress")
+  @Operation(summary = "목표별 달성률 조회", description = "목표별 달성률 조회 엔드포인트")
+  public ApiResponse<ListGoalProgressResponse> getAchievementRateByGoal() {
+    return ApiResponse.onSuccess(this.goalService.getAchievementRateByGoal());
   }
 
   /**

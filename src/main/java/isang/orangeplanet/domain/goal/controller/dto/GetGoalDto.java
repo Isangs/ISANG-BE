@@ -1,4 +1,4 @@
-package isang.orangeplanet.domain.goal.controller.response;
+package isang.orangeplanet.domain.goal.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;

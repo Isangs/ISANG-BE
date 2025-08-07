@@ -8,7 +8,9 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import isang.orangeplanet.domain.goal.controller.response.*;
+import isang.orangeplanet.domain.goal.controller.dto.GetGoalDto;
+import isang.orangeplanet.domain.goal.controller.dto.ListGoalProgressDto;
+import isang.orangeplanet.domain.goal.controller.dto.ListWeeklyAchievementDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -100,5 +102,39 @@ public class GoalRepository {
       )
       .groupBy(task.goal.goalId, task.goal.name, weekdayName)
       .fetch();
+  }
+
+  /**
+   * 목표별 달성률 조회
+   * @param userId : 회원 ID
+   * @return : 목표별 달성률 목록 반환
+   */
+  public List<ListGoalProgressDto> getAchievementRateByGoal(String userId) {
+    NumberExpression<Integer> achievementRate = task.count().multiply(100)
+      .divide(
+        JPAExpressions.select(task.count())
+          .from(task)
+          .where(
+            task.goal.goalId.eq(goal.goalId)
+              .and(task.user.userId.eq(userId))
+          )
+      ).intValue();
+
+    return this.queryFactory.select(
+      Projections.fields(
+        ListGoalProgressDto.class,
+        task.goal.goalId,
+        task.goal.name.as("name"),
+        achievementRate.as("percentage")
+      )
+    )
+    .from(task)
+    .leftJoin(goal).on(task.goal.eq(goal))
+    .where(
+      task.user.userId.eq(userId)
+        .and(task.isCompleted.eq(true))
+    )
+    .groupBy(task.goal.goalId, task.goal.name)
+    .fetch();
   }
 }

@@ -1,4 +1,4 @@
-package isang.orangeplanet.domain.goal.controller.response;
+package isang.orangeplanet.domain.goal.controller.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

@@ -2,6 +2,7 @@ package isang.orangeplanet.domain.goal.service;
 
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.goal.Goal;
+import isang.orangeplanet.domain.goal.controller.dto.*;
 import isang.orangeplanet.domain.goal.controller.request.CreateGoalRequest;
 import isang.orangeplanet.domain.goal.controller.response.*;
 import isang.orangeplanet.domain.goal.repository.GoalRepository;
@@ -216,6 +217,22 @@ public class GoalService {
     }
 
     return new ArrayList<>(map.values());
+  }
+
+  /**
+   * 목표별 달성률 목록 조회 메서드
+   * @return : 목표별 달성률 목록 반환
+   */
+  public ListGoalProgressResponse getAchievementRateByGoal() {
+    List<ListGoalProgressDto> progressList = this.goalRepository.getAchievementRateByGoal(SecurityUtils.getAuthUserId());
+
+    if (progressList.isEmpty()) {
+      throw new GeneralException(ErrorStatus.NOT_FOUND, "목표나 완료한 할일이 없습니다.");
+    }
+
+    return ListGoalProgressResponse.builder()
+      .goalProgressList(progressList)
+      .build();
   }
 
   /**
