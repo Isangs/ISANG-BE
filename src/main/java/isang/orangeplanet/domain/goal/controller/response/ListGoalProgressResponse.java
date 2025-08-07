@@ -3,7 +3,7 @@ package isang.orangeplanet.domain.goal.controller.response;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
-import isang.orangeplanet.domain.goal.controller.dto.ListGoalScoresDto;
+import isang.orangeplanet.domain.goal.controller.dto.ListGoalProgressDto;
 import lombok.*;
 
 import java.util.List;
@@ -14,9 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@Schema(description = "목표 상세 목록 조회 응답 객체")
-public class ListGoalScoresResponse {
+@Schema(description = "목표별 달성률 목록 조회 응답 객체")
+public class ListGoalProgressResponse {
 
-  @Schema(description = "목표 목록")
-  private List<ListGoalScoresDto> goalList;
+  @Schema(description = "목표별 달성률 목록")
+  private List<ListGoalProgressDto> goalProgressList;
 }

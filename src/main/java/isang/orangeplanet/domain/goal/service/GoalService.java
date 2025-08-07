@@ -2,6 +2,7 @@ package isang.orangeplanet.domain.goal.service;
 
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.goal.Goal;
+import isang.orangeplanet.domain.goal.controller.dto.*;
 import isang.orangeplanet.domain.goal.controller.request.CreateGoalRequest;
 import isang.orangeplanet.domain.goal.controller.response.*;
 import isang.orangeplanet.domain.goal.repository.GoalRepository;
@@ -19,8 +20,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * GoalService : 목표 관련 Service
@@ -29,6 +29,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class GoalService {
+
+  private final List<String> allDays = List.of(
+    "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"
+  );
 
   private final JpaGoalRepository jpaGoalRepository;
   private final GoalRepository goalRepository;
@@ -158,6 +162,77 @@ public class GoalService {
     }).toList();
 
     return new ListTaskResponse(responses);
+  }
+
+  /**
+   * 주간 성과 목록 조회 메서드
+   * @return : 주간 성과 목록 반환
+   */
+  public List<WeeklyGoalAchievementDto> weeklyAchievement() {
+    List<ListWeeklyAchievementDto> rawList = this.goalRepository.weeklyAchievement(SecurityUtils.getAuthUserId());
+    return convertToWeeklyGoals(rawList);
+  }
+
+  /**
+   * DayList 채워넣기(?) ㅎㅎ
+   * @param rawList : 주간 완료된 할일 목록 객체
+   * @return : WeeklyGoalAchievementDto 목록 반환
+   */
+  public List<WeeklyGoalAchievementDto> convertToWeeklyGoals(List<ListWeeklyAchievementDto> rawList) {
+    Map<Long, WeeklyGoalAchievementDto> map = new LinkedHashMap<>();
+    Map<Long, Map<String, Long>> scoreByGoalAndDay = new HashMap<>();
+
+    for (ListWeeklyAchievementDto dto : rawList) {
+      map.computeIfAbsent(dto.getGoalId(), id ->
+        WeeklyGoalAchievementDto.builder()
+          .goalId(dto.getGoalId())
+          .name(dto.getName())
+          .maxScore(dto.getMaxScore().intValue())
+          .dayList(new ArrayList<>())
+          .build()
+      );
+
+      // 요일별 점수 map으로 저장
+      scoreByGoalAndDay
+        .computeIfAbsent(dto.getGoalId(), k -> new HashMap<>())
+        .put(dto.getDay().toUpperCase(), dto.getScore());
+    }
+
+    for (WeeklyGoalAchievementDto goal : map.values()) {
+      Map<String, Long> dayMap = scoreByGoalAndDay.getOrDefault(goal.getGoalId(), Collections.emptyMap());
+      int total = 0;
+
+      for (String day : allDays) {
+        Long score = dayMap.getOrDefault(day, 0L);
+        goal.getDayList().add(
+          DayScoreDto.builder()
+            .day(day)
+            .score(score)
+            .build()
+        );
+        total += score;
+      }
+
+      goal.setTotalScore(total);
+    }
+
+    return new ArrayList<>(map.values());
+  }
+
+  /**
+   * 목표별 달성률 목록 조회 메서드
+   * @return : 목표별 달성률 목록 반환
+   */
+  public ListGoalProgressResponse getAchievementRateByGoal() {
+    List<ListGoalProgressDto> progressList = this.goalRepository.getAchievementRateByGoal(SecurityUtils.getAuthUserId());
+
+    if (progressList.isEmpty()) {
+      throw new GeneralException(ErrorStatus.NOT_FOUND, "목표나 완료한 할일이 없습니다.");
+    }
+
+    return ListGoalProgressResponse.builder()
+      .goalProgressList(progressList)
+      .build();
   }
 
   /**
