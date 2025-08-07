@@ -31,7 +31,9 @@ public class FeedService {
   private final FeedRepository feedRepository;
 
   public SearchFeedListResponse searchFeedList(String query) {
-    List<FeedDto> feeds = feedRepository.findByUserNameLikeOrContentLikeOrTaskNameLike(query, query, query).stream().map(feed -> {
+    List<Feed> feeds = feedRepository.findByUserNameLikeOrContentLikeOrTaskNameLike(query);
+
+    List<FeedDto> responses = feeds.stream().map(feed -> {
       User user = feed.getUser();
       UserSimpleDto userResponse = UserSimpleDto.builder()
           .name(user.getName())
@@ -51,11 +53,13 @@ public class FeedService {
           .build();
     }).toList();
 
-    return new SearchFeedListResponse(feeds);
+    return new SearchFeedListResponse(responses);
   }
 
   public FetchFeedListResponse fetchFeedList() {
-    List<FeedDto> feeds = feedRepository.findAll().stream().map(feed -> {
+    List<Feed> feeds = feedRepository.findAll();
+
+    List<FeedDto> responses = feeds.stream().map(feed -> {
       User user = feed.getUser();
       UserSimpleDto userResponse = UserSimpleDto.builder()
         .name(user.getName())
@@ -75,7 +79,7 @@ public class FeedService {
           .build();
     }).toList();
 
-    return new FetchFeedListResponse(feeds);
+    return new FetchFeedListResponse(responses);
   }
 
   public void completeTaskWithText(Long taskId, CompleteTaskWithTextRequest request){
