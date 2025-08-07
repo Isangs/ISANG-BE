@@ -93,7 +93,6 @@ public class TaskService {
       // 해당 회원의 모든 목표를 조회함.
       List<Goal> goalList = this.jpaGoalRepository.findGoalByUser(user)
         .orElseThrow(() -> new GeneralException(ErrorStatus.KEY_NOT_EXIST, "목표 목록을 찾을 수 없습니다."));
-      goalList.forEach(g -> System.out.println(g.getName()));
 
       // 프롬프트에 추가될 목표 목록 제작
       StringBuffer goals = new StringBuffer("[");
