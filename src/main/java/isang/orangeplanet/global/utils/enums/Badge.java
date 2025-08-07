@@ -1,5 +1,7 @@
 package isang.orangeplanet.global.utils.enums;
 
+import isang.orangeplanet.domain.user.User;
+import isang.orangeplanet.domain.user.utils.UserUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -17,4 +19,12 @@ public enum Badge {
   private final String name;
   private final String desc;
   private final int condition;
+
+  public static int calculateScore(User user, Badge badge) {
+    return switch (badge) {
+      case THREE_DAY, PERFECT_WEEK, MONTHLY_KING -> 1;
+      case OVER_PERFECT_SCORES -> user.getTotalScore().intValue();
+      case BEGINNER_ESCAPE, MASTER -> UserUtils.getLevel(user.getTotalScore()).intValue();
+    };
+  }
 }
