@@ -3,6 +3,8 @@ package isang.orangeplanet.domain.user;
 import isang.orangeplanet.domain.badge.Badge;
 import isang.orangeplanet.domain.goal.Goal;
 import isang.orangeplanet.domain.task.Task;
+import isang.orangeplanet.domain.user.controller.dto.UserSimpleDto;
+import isang.orangeplanet.domain.user.service.UserService;
 import isang.orangeplanet.global.config.jpa.CryptoConverter;
 import isang.orangeplanet.global.domain.BaseTimeEntity;
 import isang.orangeplanet.global.utils.enums.Role;
@@ -61,5 +63,12 @@ public class User extends BaseTimeEntity {
 
   public void sumTotalScore(Long score) {
     this.totalScore += score;
+  }
+
+  public UserSimpleDto toSimpleDto(){
+    return UserSimpleDto.builder()
+        .name(name)
+        .profileImageUrl(profileUrl)
+        .build();
   }
 }
