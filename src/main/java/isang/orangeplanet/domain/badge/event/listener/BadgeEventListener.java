@@ -1,7 +1,10 @@
 package isang.orangeplanet.domain.badge.event.listener;
 
+import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.badge.event.BadgeEvent;
 import isang.orangeplanet.domain.badge.service.BadgeService;
+import isang.orangeplanet.domain.user.User;
+import isang.orangeplanet.domain.user.utils.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -13,6 +16,7 @@ public class BadgeEventListener {
 
   @EventListener
   public void onBadgeEvent(BadgeEvent event) {
-    this.badgeService.handleBadgeProgress(event.getBadge());
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
+    this.badgeService.handleBadgeProgress(user, event.getBadge());
   }
 }

@@ -4,7 +4,7 @@ import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.domain.user.controller.dto.request.UpdateUserRequest;
 import isang.orangeplanet.domain.user.controller.dto.response.DetailUserResponse;
-import isang.orangeplanet.domain.user.repository.UpdateUserRepository;
+import isang.orangeplanet.domain.user.repository.UserRepository;
 import isang.orangeplanet.domain.user.utils.UserUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Transactional
 public class UserService {
-  private final UpdateUserRepository updateUserRepository;
+  private final UserRepository updateUserRepository;
 
   /**
    * 회원 상세 정보 조회

@@ -1,6 +1,7 @@
 package isang.orangeplanet.domain.feed.service;
 
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
+import isang.orangeplanet.domain.badge.event.BadgeEvent;
 import isang.orangeplanet.domain.feed.Feed;
 import isang.orangeplanet.domain.feed.controller.dto.FeedDto;
 import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithImageRequest;
@@ -15,9 +16,11 @@ import isang.orangeplanet.domain.user.controller.dto.UserSimpleDto;
 import isang.orangeplanet.domain.user.utils.UserUtils;
 import isang.orangeplanet.global.api_response.exception.GeneralException;
 import isang.orangeplanet.global.api_response.status.ErrorStatus;
+import isang.orangeplanet.global.utils.enums.Badge;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +30,7 @@ import java.util.List;
 @Slf4j
 @Transactional
 public class FeedService {
+  private final ApplicationEventPublisher eventPublisher;
   private final JpaTaskRepository jpaTaskRepository;
   private final FeedRepository feedRepository;
 
@@ -98,6 +102,7 @@ public class FeedService {
 
     task.updateIsCompleted(true);
     currentUser.sumTotalScore(100L);
+    eventPublisher.publishEvent(new BadgeEvent(Badge.THREE_DAY));
 
     if(task.getIsAddFeed()) {
       Feed newFeed = Feed.builder()
