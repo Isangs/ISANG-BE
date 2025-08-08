@@ -1,5 +1,6 @@
 package isang.orangeplanet.domain.feed;
 
+import isang.orangeplanet.domain.feed.controller.dto.FeedDto;
 import isang.orangeplanet.domain.task.Task;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.global.domain.BaseTimeEntity;
@@ -21,10 +22,10 @@ public class Feed extends BaseTimeEntity {
   private Long feedId;
 
   @Column(name = "hearts", nullable = false)
-  private Long heart;
+  private Long hearts;
 
   @Column(name = "likes", nullable = false)
-  private Long like;
+  private Long likes;
 
   @JoinColumn(name = "user_id")
   @ManyToOne(fetch = FetchType.LAZY)
@@ -39,4 +40,17 @@ public class Feed extends BaseTimeEntity {
 
   @Column(name = "image_url")
   private String imageUrl;
+
+  public FeedDto toDto(){
+    return FeedDto.builder()
+        .id(feedId)
+        .createdAt(getCreatedAt())
+        .hearts(hearts)
+        .likes(likes)
+        .profileImageUrl(imageUrl)
+        .content(content)
+        .user(user.toSimpleDto())
+        .taskMessage(task.getName())
+        .build();
+  }
 }
