@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @ToString
+@Setter
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -41,22 +42,5 @@ public class BadgeProgress extends BaseTimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;
-
-
-  public void updateProgress(int progress) {
-    this.progress = progress;
-  }
-
-  public void updateIsAchieved(boolean isAchieved) {
-    this.isAchieved = isAchieved;
-  }
-
-  public void updateLastCompletedAt(LocalDateTime date) {
-    this.lastCompletedAt = date;
-  }
-
-  public void updateLastMaintainedAt(LocalDate date) {
-    this.lastMaintainedAt = date;
-  }
 }
 

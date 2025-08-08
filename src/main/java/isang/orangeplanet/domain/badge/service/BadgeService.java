@@ -13,14 +13,16 @@ import isang.orangeplanet.domain.task.repository.TaskRepository;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.domain.user.repository.UserRepository;
 import isang.orangeplanet.domain.user.utils.UserUtils;
+import isang.orangeplanet.global.api_response.exception.GeneralException;
+import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import isang.orangeplanet.global.utils.enums.Badge;
-import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -121,46 +123,45 @@ public class BadgeService {
    * @param badge : 뱃지 Enum
    */
   public void handleBadgeProgress(User user, Badge badge) {
-    BadgeProgress progress = this.jpaBadgeProgressRepository.findBadgeProgressesByUserAndBadge(user, badge);
     int score = Badge.calculateScore(user, badge);
+    LocalDateTime today = LocalDateTime.now();
 
     // 진행도 누적 방식
     if (badge == Badge.THREE_DAY || badge == Badge.PERFECT_WEEK || badge == Badge.MONTHLY_KING) {
-      this.applyBadgeLogic(progress, user, badge, score);
+      this.applyBadgeLogic(user, badge, score, today);
       return;
     }
 
-    // BadgeProgress가 null이면 생성하고 끝내라 이거임
-    if (this.getOrCreateBadgeProgress(progress, badge, user, score) == null) return;
+    BadgeProgress badgeProgress = this.getOrCreateBadgeProgress(badge, user, score);
+    if (badgeProgress == null) return; // BadgeProgress이 null이면 메서드 종료해라
 
     // 이미 획득한 경우 그냥 종료
-    if (progress.isAchieved()) return;
+    if (badgeProgress.isAchieved()) return;
 
     // 뱃지가 아래 세가지면 누적 방식이 아님! 그냥 업데이트하는 방식
     if (badge == Badge.MASTER || badge == Badge.BEGINNER_ESCAPE || badge == Badge.OVER_PERFECT_SCORES) {
-      this.applyProgress(progress, score, badge);
+      this.applyProgress(badgeProgress, score, badge);
     }
   }
 
   /**
    * 일단 아래 Badge Enum들은 누적되는 방식이기 때문에 기존 점수에 새로운 점수를 더하여 계산하고 progress가 없으면 새로 생성까지 해주는 메서드(?)
    * (말로 설명하니까 뭔가 잘안된다..)
-   * @param progress : Nullable한 BadgeProgress 객체
    * @param user : User 객체
    * @param badge : Badge Enum
    * @param score : 각 Badge Enum의 점수
    */
-  public void applyBadgeLogic(@Nullable BadgeProgress progress, User user, Badge badge, int score) {
-    progress = this.getOrCreateBadgeProgress(progress, badge, user, score); // BadgeProgress가 null일시 생성 후 BadgeProgress 객체 반환
+  public void applyBadgeLogic(User user, Badge badge, int score, LocalDateTime today) {
+    BadgeProgress progress = this.getOrCreateBadgeProgress(badge, user, score); // BadgeProgress가 null일시 생성 후 BadgeProgress 객체 반환
     /*
       뭐가 이리 복잡하지 ㅋㅋㅋㅋㅋㅋㅋㅋㅋ 아놔 머리 아파
       아래 세가지 뱃지는 전부 누적되는 방식이기 때문에 증감하여 새로운 진행도(점수)를 만듦 (기존 점수 += score)
       할일 완료시 호출(테스트를 위함) -> 날자 변경해가면서 테스트 돌리면 될듯?
      */
     switch (badge) {
-      case THREE_DAY -> this.handleThreeDayBadge(progress, badge, score);
-      case MONTHLY_KING -> this.handleMonthlyKingBadge(progress, user, badge, score);
-      case PERFECT_WEEK -> this.handlePerfectWeekBadge(progress, badge, user);
+      case THREE_DAY -> this.handleThreeDayBadge(progress, badge, user, score, today);
+      case MONTHLY_KING -> this.handleMonthlyKingBadge(progress, user, badge, score, today);
+      case PERFECT_WEEK -> this.handlePerfectWeekBadge(progress, badge, user, today);
     }
   }
 
@@ -170,24 +171,28 @@ public class BadgeService {
    * @param badge : Badge Enum
    * @param score : 진행도(점수)
    */
-  public void handleThreeDayBadge(BadgeProgress progress, Badge badge, int score) {
-    LocalDateTime today = LocalDateTime.now();
+  public void handleThreeDayBadge(BadgeProgress progress, Badge badge, User user, int score, LocalDateTime today) {
     LocalDateTime lastDate = progress.getLastCompletedAt();
     int newProgress = progress.getProgress();
 
     if (lastDate != null && lastDate.toLocalDate().plusDays(1).equals(today.toLocalDate())) {
       // 연속 유지하면서 획득 조건 체크~!
       newProgress += score;
-      progress.updateLastCompletedAt(today); // 연속 체크를 해야하기 때문에 추가했음
+      progress.setLastCompletedAt(today); // 연속 체크를 해야하기 때문에 추가했음
+      this.jpaBadgeProgressRepository.save(progress);
+
+      progress = this.jpaBadgeProgressRepository.findBadgeProgressesByUserAndBadge(user, badge);
       this.applyProgress(progress, newProgress, badge);
     } else if (lastDate != null && lastDate.toLocalDate().equals(today.toLocalDate())) {
       // 똑같은 하루에 할일을 추가로 완료하면 X, 기존 score로 유지
-//      progress.updateProgress(progress.getProgress());
       return;
     } else { // 연속 실패!! (다시 1일부터)
       // lastCompletedAt -> today 업데이트
-      progress.updateLastCompletedAt(today);
-      progress.updateProgress(1);
+      progress.setLastCompletedAt(today);
+      progress.setProgress(1);
+      this.jpaBadgeProgressRepository.save(progress);
+
+      log.info("사용자 '{}'의 연속 할일 완료 조건 실패 - 진행도 1로 초기화", user.getName());
     }
   }
 
@@ -198,33 +203,32 @@ public class BadgeService {
    * @param badge : Badge Enum
    * @param score : 진행도(점수)
    */
-  public void handleMonthlyKingBadge(BadgeProgress progress, User user, Badge badge, int score) {
-    LocalDate date = LocalDate.now();
+  public void handleMonthlyKingBadge(@NotNull BadgeProgress progress, User user, Badge badge, int score, LocalDateTime today) {
     String currentUserId = SecurityUtils.getAuthUserId();
-    LocalDate lastDate = (progress.getLastCompletedAt() != null) ? progress.getLastCompletedAt().toLocalDate() : null;
+    LocalDate lastDate = (progress.getLastMaintainedAt() != null) ? progress.getLastMaintainedAt() : null;
     int newProgress = progress.getProgress();
 
     // 로그인한 회원이 오늘 1등이 아니면 아래 실행해서 메서드 종료
     if (!user.getUserId().equals(currentUserId)) return;
 
-    if (lastDate != null && lastDate.plusDays(1).equals(date)) {
+    if (lastDate != null && lastDate.plusDays(1).equals(today.toLocalDate())) {
       // 전날까지 연속 유지
       newProgress += score;
-      progress.updateLastMaintainedAt(date); // 다음 연속 체크를 위한 날짜 업데이트
+      progress.setLastMaintainedAt(today.toLocalDate()); // 다음 연속 체크를 위한 날짜 업데이트
+      progress.setLastCompletedAt(today);
       this.applyProgress(progress, newProgress, badge);
     } else {
 
       // 오늘 날짜와 같다면
       if (lastDate != null && lastDate.isEqual(progress.getLastCompletedAt().toLocalDate())) {
         log.info("오늘 이미 처리된 상태입니다. (날짜 중복 처리 방지)");
-        return;
+      } else {
+        // 연속 실패 (중간에 하루라도 1등 실패하면!)
+        progress.setLastMaintainedAt(today.toLocalDate());
+        progress.setProgress(1);
+
+        log.info("사용자 {}의 '{}' 뱃지 연속 조건 실패 - 진행도 1로 초기화", user.getName(), badge.name());
       }
-
-      // 연속 실패 (중간에 하루라도 1등 실패하면!)
-      progress.updateLastMaintainedAt(date);
-      progress.updateProgress(1);
-
-      log.info("사용자 {}의 '{}' 뱃지 연속 조건 실패 - 진행도 1로 초기화", user.getName(), badge.name());
     }
   }
 
@@ -234,10 +238,9 @@ public class BadgeService {
    * @param badge : Badge Enum
    * @param user : 회원 객체
    */
-  public void handlePerfectWeekBadge(BadgeProgress progress, Badge badge, User user) {
-    LocalDate date = LocalDate.now();
-    LocalDate startOfWeek = date.with(DayOfWeek.MONDAY);
-    LocalDate endOfWeek = date.with(DayOfWeek.SUNDAY);
+  public void handlePerfectWeekBadge(BadgeProgress progress, Badge badge, User user, LocalDateTime today) {
+    LocalDate startOfWeek = today.toLocalDate().with(DayOfWeek.MONDAY);
+    LocalDate endOfWeek = today.toLocalDate().with(DayOfWeek.SUNDAY);
 
     // 이번 주 생성된 할일 중 완료되지 않은 것이 있는지 체크
     boolean hasUncompleted = this.taskRepository.isPerfectWeek(
@@ -253,14 +256,20 @@ public class BadgeService {
 
   /**
    * BadgeProgress의 null 여부 확인 및 생성
-   * @param progress : BadgeProgress 객체
    * @param badge : Badge Enum
    * @param user : 회원 객체
    * @param score : 진행도(점수)
    * @return : 생성된 BadgeProgress 객체
    */
-  private BadgeProgress getOrCreateBadgeProgress(@Nullable BadgeProgress progress, Badge badge, User user, int score) {
-    if (progress == null) {
+  private BadgeProgress getOrCreateBadgeProgress(Badge badge, User user, int score) {
+    List<BadgeProgress> progresses = this.jpaBadgeProgressRepository.findAllByUserAndBadge(user, badge);
+
+    if (progresses.size() > 1) {
+      throw new GeneralException(ErrorStatus.BAD_REQUEST, "중복된 BadgeProgress가 존재합니다.");
+    } else if (progresses.size() == 1) {
+      return progresses.get(0);
+    } else {
+      // 새로 생성
       BadgeProgress badgeProgress = BadgeProgress.builder()
         .badge(badge)
         .isAchieved(false)
@@ -270,10 +279,7 @@ public class BadgeService {
         .user(user)
         .build();
 
-      this.jpaBadgeProgressRepository.save(badgeProgress);
-      return badgeProgress;
-    } else {
-      return progress;
+      return this.jpaBadgeProgressRepository.save(badgeProgress);
     }
   }
 
@@ -287,8 +293,8 @@ public class BadgeService {
     // 획득 조건이랑 해당 진행도(점수)와 비교
     if (score >= badge.getCondition()) {
       // 획득 조건보다 크거가 같으면 progress와 isAchieved 업데이트
-      progress.updateProgress(score);
-      progress.updateIsAchieved(true);
+      progress.setProgress(score);
+      progress.setAchieved(true);
 
       // 뱃지 획득
       this.jpaBadgeRepository.save(
@@ -303,7 +309,7 @@ public class BadgeService {
       log.info("'{}' 뱃지 달성! (설명: {})", badge.getName(), badge.getDesc());
     } else {
       // 아직 진행도(점수)가 낮다면 계속 progress 업데이트
-      progress.updateProgress(score);
+      progress.setProgress(score);
       log.info("'{}' 진행 중... 현재 {}/{} (설명: {})",
         badge.getName(), progress.getProgress(), badge.getCondition(), badge.getDesc()
       );

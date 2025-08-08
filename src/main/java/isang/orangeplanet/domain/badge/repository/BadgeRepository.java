@@ -31,6 +31,11 @@ public class BadgeRepository {
       .fetch();
   }
 
+  /**
+   * 뱃지 진행도 조회
+   * @param userId : 회원 ID
+   * @return : 뱃지 진행도 반환
+   */
   public List<BadgeProgress> listDetailBadge(String userId) {
     return this.queryFactory.select(badgeProgress)
       .from(badgeProgress)

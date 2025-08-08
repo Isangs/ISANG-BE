@@ -41,7 +41,7 @@ public class UserRepository {
       .leftJoin(feed).on(feed.createdAt.between(startOfDay, endOfDate))
       .where(task.isCompleted.isTrue())
       .groupBy(task.user)
-      .orderBy(user.totalScore.desc())
+      .orderBy(task.user.totalScore.desc())
       .limit(1)
       .fetchOne();
   }
