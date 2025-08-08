@@ -3,7 +3,9 @@ package isang.orangeplanet.domain.badge.service;
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.badge.BadgeProgress;
 import isang.orangeplanet.domain.badge.controller.dto.ListBadgeDto;
+import isang.orangeplanet.domain.badge.controller.dto.ListDetailBadgeDto;
 import isang.orangeplanet.domain.badge.controller.response.ListBadgeResponse;
+import isang.orangeplanet.domain.badge.controller.response.ListDetailBadgeResponse;
 import isang.orangeplanet.domain.badge.repository.BadgeRepository;
 import isang.orangeplanet.domain.badge.repository.JpaBadgeProgressRepository;
 import isang.orangeplanet.domain.badge.repository.JpaBadgeRepository;
@@ -68,6 +70,32 @@ public class BadgeService {
   }
 
   /**
+   * 뱃지 갤러리 상세 정보 조회
+   * @return : 뱃지 상세 정보 반환
+   */
+  public ListDetailBadgeResponse listDetailBadge() {
+    List<ListDetailBadgeDto> responses = new ArrayList<>();
+
+    List<BadgeProgress> badgeList = this.badgeRepository.listDetailBadge(SecurityUtils.getAuthUserId());
+    badgeList.forEach(bp ->
+      responses.add(
+        ListDetailBadgeDto.builder()
+          .badge(bp.getBadge())
+          .name(bp.getBadge().getName())
+          .desc(bp.getBadge().getDesc())
+          .isAchieved(bp.isAchieved())
+          .progress(bp.getProgress())
+          .condition(bp.getBadge().getCondition())
+          .build()
+      )
+    );
+
+    return ListDetailBadgeResponse.builder()
+      .badgeList(responses)
+      .build();
+  }
+
+  /**
    * 오늘 1등인 회원을 거르기 위한 스케줄러 (매일 00:00)
    */
   @Scheduled(cron = "0 0 0 * * *")
@@ -122,7 +150,7 @@ public class BadgeService {
    * @param badge : Badge Enum
    * @param score : 각 Badge Enum의 점수
    */
-  private void applyBadgeLogic(@Nullable BadgeProgress progress, User user, Badge badge, int score) {
+  public void applyBadgeLogic(@Nullable BadgeProgress progress, User user, Badge badge, int score) {
     progress = this.getOrCreateBadgeProgress(progress, badge, user, score); // BadgeProgress가 null일시 생성 후 BadgeProgress 객체 반환
     /*
       뭐가 이리 복잡하지 ㅋㅋㅋㅋㅋㅋㅋㅋㅋ 아놔 머리 아파
@@ -142,7 +170,7 @@ public class BadgeService {
    * @param badge : Badge Enum
    * @param score : 진행도(점수)
    */
-  private void handleThreeDayBadge(BadgeProgress progress, Badge badge, int score) {
+  public void handleThreeDayBadge(BadgeProgress progress, Badge badge, int score) {
     LocalDateTime today = LocalDateTime.now();
     LocalDateTime lastDate = progress.getLastCompletedAt();
     int newProgress = progress.getProgress();
@@ -170,7 +198,7 @@ public class BadgeService {
    * @param badge : Badge Enum
    * @param score : 진행도(점수)
    */
-  private void handleMonthlyKingBadge(BadgeProgress progress, User user, Badge badge, int score) {
+  public void handleMonthlyKingBadge(BadgeProgress progress, User user, Badge badge, int score) {
     LocalDate date = LocalDate.now();
     String currentUserId = SecurityUtils.getAuthUserId();
     LocalDate lastDate = (progress.getLastCompletedAt() != null) ? progress.getLastCompletedAt().toLocalDate() : null;
@@ -206,7 +234,7 @@ public class BadgeService {
    * @param badge : Badge Enum
    * @param user : 회원 객체
    */
-  private void handlePerfectWeekBadge(BadgeProgress progress, Badge badge, User user) {
+  public void handlePerfectWeekBadge(BadgeProgress progress, Badge badge, User user) {
     LocalDate date = LocalDate.now();
     LocalDate startOfWeek = date.with(DayOfWeek.MONDAY);
     LocalDate endOfWeek = date.with(DayOfWeek.SUNDAY);

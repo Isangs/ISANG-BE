@@ -1,6 +1,7 @@
 package isang.orangeplanet.domain.badge.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import isang.orangeplanet.domain.badge.BadgeProgress;
 import isang.orangeplanet.global.utils.enums.Badge;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -27,6 +28,13 @@ public class BadgeRepository {
         badgeProgress.user.userId.eq(userId)
           .and(badgeProgress.isAchieved.eq(true))
       )
+      .fetch();
+  }
+
+  public List<BadgeProgress> listDetailBadge(String userId) {
+    return this.queryFactory.select(badgeProgress)
+      .from(badgeProgress)
+      .where(badgeProgress.user.userId.eq(userId))
       .fetch();
   }
 }
