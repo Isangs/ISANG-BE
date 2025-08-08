@@ -29,9 +29,6 @@ public class Badge {
   @Column(name = "progress", nullable = false)
   private Long progress;
 
-  @Column(name = "day_count", nullable = false)
-  private Long dayCount;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;
