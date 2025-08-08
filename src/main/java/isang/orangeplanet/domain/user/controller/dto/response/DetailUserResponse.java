@@ -1,7 +1,5 @@
 package isang.orangeplanet.domain.user.controller.dto.response;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 import isang.orangeplanet.global.utils.enums.Role;
 import lombok.*;
@@ -11,7 +9,6 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Schema(description = "회원 상세 정보 조회 응답 객체")
 public class DetailUserResponse {
 

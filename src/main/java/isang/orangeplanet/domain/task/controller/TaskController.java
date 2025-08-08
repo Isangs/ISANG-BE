@@ -10,7 +10,6 @@ import isang.orangeplanet.domain.task.service.TaskService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -61,29 +60,28 @@ public class TaskController {
    * 특정 할일 수정 엔드포인트
    * @param id 할일 ID
    * @param request 할일 수정 DTO
-   * @return 응답 값이 없는 ResponseEntity
    */
   @PatchMapping("/{id}")
   @Operation(summary = "특정 할일 수정", description = "특정 할일 수정 엔드포인트")
-  public ResponseEntity<Void> updateTask(
+  public ApiResponse<Void> updateTask(
       @PathVariable Long id,
       @RequestBody @Valid UpdateTaskRequest request
   ) {
     taskService.updateTask(id, request);
-    return ResponseEntity.ok().build();
+    return ApiResponse.onSuccess();
   }
 
   /**
    * 특정 할일 설정 조회 엔드포인트
    * @param id 할일 ID
-   * @return DTO를 포함한 ResponseEntity
+   * @return FetchTaskVisibilityResponse
    */
   @GetMapping("/{id}/setting")
   @Operation(summary = "특정 할일 설정 조회", description = "특정 할일 설정 조회 엔드포인트")
-  public ResponseEntity<FetchTaskVisibilityResponse> fetchTaskVisibility(
+  public ApiResponse<FetchTaskVisibilityResponse> fetchTaskVisibility(
       @PathVariable Long id
   ) {
     FetchTaskVisibilityResponse response = taskService.getTaskById(id);
-    return ResponseEntity.ok(response);
+    return ApiResponse.onSuccess(response);
   }
 }
