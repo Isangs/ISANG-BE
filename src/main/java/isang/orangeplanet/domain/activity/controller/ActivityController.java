@@ -13,7 +13,7 @@ public class ActivityController {
     private final ActivityService activityService;
 
     @GetMapping
-    public ResponseEntity<FetchActivityListResponse> fetchActivityList(@RequestParam Integer limit) {
+    public ResponseEntity<FetchActivityListResponse> fetchActivityList(@RequestParam(required = false) Integer limit) {
         FetchActivityListResponse response = activityService.fetchActivityList(limit);
         return ResponseEntity.ok(response);
     }
