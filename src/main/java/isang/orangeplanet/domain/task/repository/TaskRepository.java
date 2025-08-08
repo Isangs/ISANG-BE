@@ -5,6 +5,8 @@ import isang.orangeplanet.domain.task.Task;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static isang.orangeplanet.domain.task.QTask.task;
@@ -22,9 +24,9 @@ public class TaskRepository {
   public List<Task> findTaskByUserIdAndIsCompleted(String userId, Boolean isCompleted) {
     return this.queryFactory.selectFrom(task)
       .where(
-          task.user.userId.eq(userId).and(
-              task.isCompleted.eq(false)
-          )
+        task.user.userId.eq(userId).and(
+          task.isCompleted.eq(false)
+        )
       )
       .orderBy(task.priority.desc())
       .fetch();
@@ -38,5 +40,24 @@ public class TaskRepository {
       )
       .orderBy(task.priority.desc())
       .fetch();
+  }
+
+  /**
+   * 일주일동안 생성된 할일중 완료되지 않은것이 있는지 확인
+   * @param userId : 회원 ID
+   * @return : 완료 여부
+   */
+  public boolean isPerfectWeek(String userId, LocalDateTime startOfWeek, LocalDateTime endOfWeek) {
+    Long uncompletedCount = queryFactory
+      .select(task.count())
+      .from(task)
+      .where(
+        task.user.userId.eq(userId),
+        task.createdAt.between(startOfWeek, endOfWeek),
+        task.isCompleted.isFalse()
+      )
+      .fetchOne();
+
+    return uncompletedCount != null && uncompletedCount == 0;
   }
 }
