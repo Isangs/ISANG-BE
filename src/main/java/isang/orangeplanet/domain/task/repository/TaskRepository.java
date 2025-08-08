@@ -5,7 +5,6 @@ import isang.orangeplanet.domain.task.Task;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,6 +38,15 @@ public class TaskRepository {
         task.goal.goalId.eq(goalId)
       )
       .orderBy(task.priority.desc())
+      .fetch();
+  }
+
+  public List<Task> findByGoalId(String userId, Long goalId) {
+    return this.queryFactory.selectFrom(task)
+      .where(
+        task.user.userId.eq(userId)
+          .and(task.goal.goalId.eq(goalId))
+      )
       .fetch();
   }
 
