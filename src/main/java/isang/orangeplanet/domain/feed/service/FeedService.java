@@ -1,5 +1,7 @@
 package isang.orangeplanet.domain.feed.service;
 
+import isang.orangeplanet.domain.activity.entity.Activity;
+import isang.orangeplanet.domain.activity.repository.ActivityJpaRepository;
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.feed.Feed;
 import isang.orangeplanet.domain.feed.controller.dto.FeedDto;
@@ -18,6 +20,7 @@ import isang.orangeplanet.global.api_response.status.ErrorStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,91 +32,44 @@ import java.util.List;
 public class FeedService {
   private final JpaTaskRepository jpaTaskRepository;
   private final FeedRepository feedRepository;
+  private final ActivityJpaRepository activityJpaRepository;
 
   public SearchFeedListResponse searchFeedList(String query) {
     List<Feed> feeds = feedRepository.findByUserNameLikeOrContentLikeOrTaskNameLike(query);
-
-    List<FeedDto> responses = feeds.stream().map(feed -> {
-      User user = feed.getUser();
-      UserSimpleDto userResponse = UserSimpleDto.builder()
-          .name(user.getName())
-          .profileImageUrl(user.getProfileUrl())
-          .build();
-
-      return FeedDto.builder()
-          .likes(feed.getLike())
-          .hearts(feed.getHeart())
-          .id(feed.getFeedId())
-          .content(feed.getContent())
-          .taskMessage(feed.getTask().getName())
-          .content(feed.getContent())
-          .profileImageUrl(feed.getImageUrl())
-          .createdAt(feed.getCreatedAt())
-          .user(userResponse)
-          .build();
-    }).toList();
+    List<FeedDto> responses = feeds.stream().map(Feed::toDto).toList();
 
     return new SearchFeedListResponse(responses);
   }
 
   public FetchFeedListResponse fetchFeedList() {
     List<Feed> feeds = feedRepository.findAll();
-
-    List<FeedDto> responses = feeds.stream().map(feed -> {
-      User user = feed.getUser();
-      UserSimpleDto userResponse = UserSimpleDto.builder()
-        .name(user.getName())
-        .profileImageUrl(user.getProfileUrl())
-        .build();
-
-      return FeedDto.builder()
-          .likes(feed.getLike())
-          .hearts(feed.getHeart())
-          .id(feed.getFeedId())
-          .content(feed.getContent())
-          .taskMessage(feed.getTask().getName())
-          .content(feed.getContent())
-          .profileImageUrl(feed.getImageUrl())
-          .createdAt(feed.getCreatedAt())
-          .user(userResponse)
-          .build();
-    }).toList();
+    List<FeedDto> responses = feeds.stream().map(Feed::toDto).toList();
 
     return new FetchFeedListResponse(responses);
   }
 
   public void completeTaskWithText(Long taskId, CompleteTaskWithTextRequest request){
-    User currentUser = UserUtils.getUser(SecurityUtils.getAuthUserId());
-    Task task = jpaTaskRepository.findById(taskId).orElseThrow(() ->
-      new GeneralException(ErrorStatus.BAD_REQUEST, "해당하는 할일을 찾을 수 없습니다.")
-    );
+    Feed newFeed = completeTask(taskId, null, request.getContent());
 
-    if(task.getIsCompleted()) {
-      throw new GeneralException(ErrorStatus.BAD_REQUEST, "이미 할일이 마무리되었습니다.");
-    }
+    Activity newActivity = Activity.builder()
+        .feed(newFeed)
+        .build();
 
-    if(task.getUser() != currentUser) {
-      throw new GeneralException(ErrorStatus.BAD_REQUEST, "자신의 할일만 변경할 수 있습니다.");
-    }
-
-    task.updateIsCompleted(true);
-    currentUser.sumTotalScore(100L);
-
-    if(task.getIsAddFeed()) {
-      Feed newFeed = Feed.builder()
-          .like(0L)
-          .heart(0L)
-          .content(request.getContent())
-          .task(task)
-          .user(currentUser)
-          .build();
-
-      feedRepository.save(newFeed);
-    }
+    activityJpaRepository.save(newActivity);
   }
 
   public void completeTaskWithImage(Long taskId, CompleteTaskWithImageRequest request){
-    User currentUser = UserUtils.getUser(SecurityUtils.getAuthUserId());
+    Feed newFeed = completeTask(taskId, request.getImageUrl(), null);
+
+    Activity newActivity = Activity.builder()
+        .feed(newFeed)
+        .build();
+
+    activityJpaRepository.save(newActivity);
+  }
+
+  private Feed completeTask(Long taskId, String imageUrl, String content){
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
     Task task = jpaTaskRepository.findById(taskId).orElseThrow(() ->
         new GeneralException(ErrorStatus.BAD_REQUEST, "해당하는 할일을 찾을 수 없습니다.")
     );
@@ -122,23 +78,27 @@ public class FeedService {
       throw new GeneralException(ErrorStatus.BAD_REQUEST, "이미 할일이 마무리되었습니다.");
     }
 
-    if(task.getUser() != currentUser) {
+    if(!task.getUser().equals(user)) {
       throw new GeneralException(ErrorStatus.BAD_REQUEST, "자신의 할일만 변경할 수 있습니다.");
     }
 
     task.updateIsCompleted(true);
-    currentUser.sumTotalScore(100L);
+    user.sumTotalScore(100L);
 
+    Feed newFeed = null;
     if(task.getIsAddFeed()) {
-      Feed newFeed = Feed.builder()
-          .imageUrl(request.getImageUrl())
-          .like(0L)
-          .heart(0L)
+      newFeed = Feed.builder()
+          .likes(0L)
+          .hearts(0L)
           .task(task)
-          .user(currentUser)
+          .content(content)
+          .imageUrl(imageUrl)
+          .user(user)
           .build();
 
       feedRepository.save(newFeed);
     }
+
+    return newFeed;
   }
 }

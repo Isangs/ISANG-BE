@@ -7,12 +7,11 @@ import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithTex
 import isang.orangeplanet.domain.feed.controller.dto.response.FetchFeedListResponse;
 import isang.orangeplanet.domain.feed.controller.dto.response.SearchFeedListResponse;
 import isang.orangeplanet.domain.feed.service.FeedService;
+import isang.orangeplanet.global.api_response.ApiResponse;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(value = "/feed")
@@ -23,37 +22,37 @@ public class FeedController {
 
   @PostMapping("/text/{taskId}")
   @Operation(summary = "할일 완료 (텍스트)")
-  public ResponseEntity<Void> completeTaskWithText(
+  public ApiResponse<Void> completeTaskWithText(
       @RequestBody @Valid CompleteTaskWithTextRequest request,
       @PathVariable Long taskId
   ){
     feedService.completeTaskWithText(taskId, request);
-    return ResponseEntity.ok().build();
+    return ApiResponse.onSuccess();
   }
 
   @PostMapping("/image/{taskId}")
   @Operation(summary = "할일 완료 (이미지)")
-  public ResponseEntity<Void> completeTaskWithImage(
+  public ApiResponse<Void> completeTaskWithImage(
       @RequestBody @Valid CompleteTaskWithImageRequest request,
       @PathVariable Long taskId
   ){
     feedService.completeTaskWithImage(taskId, request);
-    return ResponseEntity.ok().build();
+    return ApiResponse.onSuccess();
   }
 
   @GetMapping
   @Operation(summary = "전체 피드 조회")
-  public ResponseEntity<FetchFeedListResponse> fetchFeeds(){
+  public ApiResponse<FetchFeedListResponse> fetchFeeds(){
     FetchFeedListResponse response = feedService.fetchFeedList();
-    return ResponseEntity.ok(response);
+    return ApiResponse.onSuccess(response);
   }
 
   @GetMapping("/search")
   @Operation(summary = "피드 검색")
-  public ResponseEntity<SearchFeedListResponse> searchFeeds(
+  public ApiResponse<SearchFeedListResponse> searchFeeds(
       @RequestParam String query
   ) {
     SearchFeedListResponse response = feedService.searchFeedList(query);
-    return ResponseEntity.ok(response);
+    return ApiResponse.onSuccess(response);
   }
 }
