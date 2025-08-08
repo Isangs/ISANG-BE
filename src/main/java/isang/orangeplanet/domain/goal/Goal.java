@@ -1,13 +1,9 @@
 package isang.orangeplanet.domain.goal;
 
-import isang.orangeplanet.domain.task.Task;
 import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.global.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -32,8 +28,4 @@ public class Goal extends BaseTimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;
-
-  @Builder.Default
-  @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
-  private List<Task> taskList = new ArrayList<>();
 }

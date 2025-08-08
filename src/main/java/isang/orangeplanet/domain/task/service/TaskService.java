@@ -190,11 +190,14 @@ public class TaskService {
     int percent = (int) Math.round(10000.0 / maxScore);
 
     List<ListTaskDto> responses = tasks.stream().map(task -> {
-      GetGoalResponse goalResponse = GetGoalResponse.builder()
+      GetGoalResponse goalResponse = null;
+      if (task.getGoal() != null) {
+        goalResponse = GetGoalResponse.builder()
           .goalId(task.getGoal().getGoalId())
           .name(task.getGoal().getName())
           .colorCode(task.getGoal().getColorCode())
           .build();
+      }
 
       return ListTaskDto.builder()
           .taskId(task.getTaskId())

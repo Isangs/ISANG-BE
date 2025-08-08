@@ -10,6 +10,7 @@ import isang.orangeplanet.domain.goal.repository.JpaGoalRepository;
 import isang.orangeplanet.domain.task.Task;
 import isang.orangeplanet.domain.task.controller.response.ListTaskDto;
 import isang.orangeplanet.domain.task.controller.response.ListTaskResponse;
+import isang.orangeplanet.domain.task.repository.JpaTaskRepository;
 import isang.orangeplanet.domain.task.repository.TaskRepository;
 import isang.orangeplanet.domain.task.service.TaskService;
 import isang.orangeplanet.domain.user.User;
@@ -35,6 +36,7 @@ public class GoalService {
   );
 
   private final JpaGoalRepository jpaGoalRepository;
+  private final JpaTaskRepository jpaTaskRepository;
   private final GoalRepository goalRepository;
   private final TaskRepository taskRepository;
   private final TaskService taskService;
@@ -240,6 +242,13 @@ public class GoalService {
    * @param goalId : 목표 ID
    */
   public void deleteGoal(String goalId) {
+    List<Task> taskList = this.taskRepository.findByGoalId(
+      SecurityUtils.getAuthUserId(), Long.parseLong(goalId)
+    );
+
+    taskList.forEach(task -> task.setGoal(null));
+
+    this.jpaTaskRepository.saveAll(taskList);
     this.jpaGoalRepository.deleteById(Long.parseLong(goalId));
   }
 }
