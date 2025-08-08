@@ -71,7 +71,7 @@ public class BadgeService {
 
   /**
    * 뱃지 갤러리 상세 정보 조회
-   * @return : 뱃지 상세 정보 반환
+   * @return : 뱃지 갤러리 상세 정보 반환
    */
   public ListDetailBadgeResponse listDetailBadge() {
     List<ListDetailBadgeDto> responses = new ArrayList<>();

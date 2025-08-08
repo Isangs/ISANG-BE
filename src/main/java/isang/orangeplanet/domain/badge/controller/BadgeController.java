@@ -36,7 +36,7 @@ public class BadgeController {
    * @return : 뱃지 갤러리 상세 정보 반환
    */
   @GetMapping(value = "/detail")
-  @Operation(summary = "획득한 뱃지 상세 정보 조회", description = "획득한 뱃지 상세 정보 조회 엔드포인트")
+  @Operation(summary = "뱃지 갤러리 상세 정보 조회", description = "뱃지 갤러리 상세 정보 조회 엔드포인트")
   public ApiResponse<ListDetailBadgeResponse> listDetailBadge() {
     return ApiResponse.onSuccess(this.badgeService.listDetailBadge());
   }
