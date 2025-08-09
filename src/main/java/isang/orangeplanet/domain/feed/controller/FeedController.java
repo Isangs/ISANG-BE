@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithImageRequest;
 import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithTextRequest;
 import isang.orangeplanet.domain.feed.controller.dto.response.FetchFeedListResponse;
+import isang.orangeplanet.domain.feed.controller.dto.response.FetchMyFeedListResponse;
 import isang.orangeplanet.domain.feed.controller.dto.response.SearchFeedListResponse;
+import isang.orangeplanet.domain.feed.enums.ReactionType;
 import isang.orangeplanet.domain.feed.service.FeedService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import jakarta.validation.Valid;
@@ -19,6 +21,12 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Feed", description = "피드 관련 API")
 public class FeedController {
   private final FeedService feedService;
+
+  @PatchMapping("/{feedId}/reaction")
+  public ApiResponse<Void> respondWithReactionType(@PathVariable Long feedId, @RequestParam ReactionType reactionType) {
+    feedService.respondWithReactionType(feedId, reactionType);
+    return ApiResponse.onSuccess();
+  }
 
   @PostMapping("/text/{taskId}")
   @Operation(summary = "할일 완료 (텍스트)")
@@ -42,8 +50,15 @@ public class FeedController {
 
   @GetMapping
   @Operation(summary = "전체 피드 조회")
-  public ApiResponse<FetchFeedListResponse> fetchFeeds(){
+  public ApiResponse<FetchFeedListResponse> fetchFeedList(){
     FetchFeedListResponse response = feedService.fetchFeedList();
+    return ApiResponse.onSuccess(response);
+  }
+
+  @GetMapping("/myself")
+  @Operation(summary = "내 피드 조회")
+  public ApiResponse<FetchMyFeedListResponse> fetchMyFeedList() {
+    FetchMyFeedListResponse response = feedService.fetchMyFeedList();
     return ApiResponse.onSuccess(response);
   }
 

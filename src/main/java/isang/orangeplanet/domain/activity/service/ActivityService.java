@@ -31,10 +31,10 @@ public class ActivityService {
 
         List<Activity> activityList;
         if(limit == null) {
-            activityList = activityJpaRepository.findByFeedUser(user);
+            activityList = activityJpaRepository.findByFeedTaskUser(user);
         } else {
             PageRequest pageRequest = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-            activityList = activityJpaRepository.findByFeedUser(user, pageRequest).stream().toList();
+            activityList = activityJpaRepository.findByFeedTaskUser(user, pageRequest).stream().toList();
         }
 
         List<FetchActivityResponse> responses = activityList.stream().map(activity -> FetchActivityResponse.builder()
@@ -54,7 +54,7 @@ public class ActivityService {
         );
         Feed feed = activity.getFeed();
 
-        if(feed.getUser() != user) {
+        if(feed.getTask().getUser() != user) {
             throw new GeneralException(ErrorStatus.BAD_REQUEST, "자신의 활동만 삭제할 수 있습니다.");
         }
 

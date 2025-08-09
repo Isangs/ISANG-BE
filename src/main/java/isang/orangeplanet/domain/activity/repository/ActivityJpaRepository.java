@@ -10,9 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ActivityJpaRepository extends JpaRepository<Activity, Long> {
-    @EntityGraph(attributePaths = { "feed", "feed.task", "feed.user" })
-    List<Activity> findByFeedUser(User user);
+    List<Activity> findByFeedTaskUser(User user);
 
-    @EntityGraph(attributePaths = { "feed", "feed.task", "feed.user" })
-    List<Activity> findByFeedUser(User user, Pageable pageable);
+    List<Activity> findByFeedTaskUser(User user, Pageable pageable);
 }

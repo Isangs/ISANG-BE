@@ -5,10 +5,14 @@ import isang.orangeplanet.domain.activity.repository.ActivityJpaRepository;
 import isang.orangeplanet.domain.auth.utils.SecurityUtils;
 import isang.orangeplanet.domain.badge.event.BadgeEvent;
 import isang.orangeplanet.domain.feed.Feed;
+import isang.orangeplanet.domain.feed.FeedReaction;
 import isang.orangeplanet.domain.feed.controller.dto.FeedDto;
 import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithImageRequest;
 import isang.orangeplanet.domain.feed.controller.dto.response.FetchFeedListResponse;
+import isang.orangeplanet.domain.feed.controller.dto.response.FetchMyFeedListResponse;
 import isang.orangeplanet.domain.feed.controller.dto.response.SearchFeedListResponse;
+import isang.orangeplanet.domain.feed.enums.ReactionType;
+import isang.orangeplanet.domain.feed.repository.FeedReactionRepository;
 import isang.orangeplanet.domain.feed.repository.FeedRepository;
 import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithTextRequest;
 import isang.orangeplanet.domain.task.Task;
@@ -25,6 +29,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,19 +43,50 @@ public class FeedService {
   private final JpaTaskRepository jpaTaskRepository;
   private final FeedRepository feedRepository;
   private final ActivityJpaRepository activityJpaRepository;
+  private final FeedReactionRepository feedReactionRepository;
+
+  public void respondWithReactionType(Long id, ReactionType reactionType) {
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
+    Feed currentFeed = feedRepository.findById(id).orElseThrow(() ->
+      new GeneralException(ErrorStatus.BAD_REQUEST, "해당하는 피드를 찾을 수 없습니다.")
+    );
+
+    FeedReaction feedReaction = feedReactionRepository
+        .findByFeedAndUserAndReactionType(currentFeed, user, reactionType)
+        .orElse(null);
+
+    if(feedReaction == null) {
+      FeedReaction newFeedReaction = FeedReaction.builder()
+          .reactionType(reactionType)
+          .user(user)
+          .feed(currentFeed)
+          .build();
+
+      feedReactionRepository.save(newFeedReaction);
+    } else {
+      feedReactionRepository.delete(feedReaction);
+    }
+  }
 
   public SearchFeedListResponse searchFeedList(String query) {
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
     List<Feed> feeds = feedRepository.findByUserNameLikeOrContentLikeOrTaskNameLike(query);
-    List<FeedDto> responses = feeds.stream().map(Feed::toDto).toList();
 
-    return new SearchFeedListResponse(responses);
+    return new SearchFeedListResponse(toFeedDtoList(feeds, user));
   }
 
   public FetchFeedListResponse fetchFeedList() {
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
     List<Feed> feeds = feedRepository.findAll();
-    List<FeedDto> responses = feeds.stream().map(Feed::toDto).toList();
 
-    return new FetchFeedListResponse(responses);
+    return new FetchFeedListResponse(toFeedDtoList(feeds, user));
+  }
+
+  public FetchMyFeedListResponse fetchMyFeedList() {
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
+    List<Feed> feeds = feedRepository.findByTaskUser(user);
+
+    return new FetchMyFeedListResponse(toFeedDtoList(feeds, user));
   }
 
   public void completeTaskWithText(Long taskId, CompleteTaskWithTextRequest request){
@@ -78,6 +117,24 @@ public class FeedService {
     );
   }
 
+  private List<FeedDto> toFeedDtoList(List<Feed> feeds, User user) {
+    Set<Long> postLikes = feedReactionRepository.findByUserAndReactionType(user, ReactionType.LIKE)
+        .stream()
+        .map(FeedReaction::getId)
+        .collect(Collectors.toSet());
+
+    Set<Long> postHearts = feedReactionRepository.findByUserAndReactionType(user, ReactionType.HEART)
+        .stream()
+        .map(FeedReaction::getId)
+        .collect(Collectors.toSet());
+
+    return feeds.stream().map(feed -> {
+      Boolean isPostLiked = postLikes.contains(feed.getFeedId());
+      Boolean isPostHearted = postHearts.contains(feed.getFeedId());
+      return feed.toDto(isPostLiked, isPostHearted);
+    }).toList();
+  }
+
   private Feed completeTask(Long taskId, String imageUrl, String content){
     User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
     Task task = jpaTaskRepository.findById(taskId).orElseThrow(() ->
@@ -103,7 +160,6 @@ public class FeedService {
           .task(task)
           .content(content)
           .imageUrl(imageUrl)
-          .user(user)
           .build();
 
       feedRepository.save(newFeed);

@@ -29,6 +29,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * BadgeService : 뱃지 관련 Service
@@ -75,18 +78,33 @@ public class BadgeService {
     List<ListDetailBadgeDto> responses = new ArrayList<>();
 
     List<BadgeProgress> badgeList = this.badgeRepository.listDetailBadge(SecurityUtils.getAuthUserId());
-    badgeList.forEach(bp ->
-      responses.add(
+    Set<Badge> ownedBadges = badgeList.stream()
+      .map(BadgeProgress::getBadge)
+      .collect(Collectors.toSet());
+
+    badgeList.forEach(bp -> responses.add(
+      ListDetailBadgeDto.builder()
+        .badge(bp.getBadge())
+        .name(bp.getBadge().getName())
+        .desc(bp.getBadge().getDesc())
+        .isAchieved(bp.isAchieved())
+        .progress(bp.getProgress())
+        .condition(bp.getBadge().getCondition())
+        .build()
+    ));
+
+    Stream.of(Badge.values())
+      .filter(b -> !ownedBadges.contains(b))
+      .forEach(b -> responses.add(
         ListDetailBadgeDto.builder()
-          .badge(bp.getBadge())
-          .name(bp.getBadge().getName())
-          .desc(bp.getBadge().getDesc())
-          .isAchieved(bp.isAchieved())
-          .progress(bp.getProgress())
-          .condition(bp.getBadge().getCondition())
+          .badge(b)
+          .name(b.getName())
+          .desc(b.getDesc())
+          .isAchieved(false)
+          .progress(0)
+          .condition(b.getCondition())
           .build()
-      )
-    );
+      ));
 
     return ListDetailBadgeResponse.builder()
       .badgeList(responses)

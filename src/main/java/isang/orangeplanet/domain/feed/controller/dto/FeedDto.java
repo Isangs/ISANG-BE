@@ -18,6 +18,9 @@ public class FeedDto {
     private String content;
     private String profileImageUrl;
     private Long hearts;
+    private Boolean isPublic;
+    private Boolean isPostLiked;
+    private Boolean isPostHearted;
     private Long likes;
     private LocalDateTime createdAt;
     private UserSimpleDto user;
