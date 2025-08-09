@@ -27,10 +27,6 @@ public class Feed extends BaseTimeEntity {
   @Column(name = "likes", nullable = false)
   private Long likes;
 
-  @JoinColumn(name = "user_id")
-  @ManyToOne(fetch = FetchType.LAZY)
-  private User user;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "task_id", unique = true)
   private Task task;
@@ -49,7 +45,8 @@ public class Feed extends BaseTimeEntity {
         .likes(likes)
         .profileImageUrl(imageUrl)
         .content(content)
-        .user(user.toSimpleDto())
+        .isPublic(task.getIsPublic())
+        .user(task.getUser().toSimpleDto())
         .taskMessage(task.getName())
         .build();
   }

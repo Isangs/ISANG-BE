@@ -5,12 +5,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithImageRequest;
 import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithTextRequest;
 import isang.orangeplanet.domain.feed.controller.dto.response.FetchFeedListResponse;
+import isang.orangeplanet.domain.feed.controller.dto.response.FetchMyFeedListResponse;
 import isang.orangeplanet.domain.feed.controller.dto.response.SearchFeedListResponse;
 import isang.orangeplanet.domain.feed.service.FeedService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,8 +42,15 @@ public class FeedController {
 
   @GetMapping
   @Operation(summary = "전체 피드 조회")
-  public ApiResponse<FetchFeedListResponse> fetchFeeds(){
+  public ApiResponse<FetchFeedListResponse> fetchFeedList(){
     FetchFeedListResponse response = feedService.fetchFeedList();
+    return ApiResponse.onSuccess(response);
+  }
+
+  @GetMapping("/myself")
+  @Operation(summary = "내 피드 조회")
+  public ApiResponse<FetchMyFeedListResponse> fetchMyFeedList() {
+    FetchMyFeedListResponse response = feedService.fetchMyFeedList();
     return ApiResponse.onSuccess(response);
   }
 

@@ -8,6 +8,7 @@ import isang.orangeplanet.domain.feed.Feed;
 import isang.orangeplanet.domain.feed.controller.dto.FeedDto;
 import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithImageRequest;
 import isang.orangeplanet.domain.feed.controller.dto.response.FetchFeedListResponse;
+import isang.orangeplanet.domain.feed.controller.dto.response.FetchMyFeedListResponse;
 import isang.orangeplanet.domain.feed.controller.dto.response.SearchFeedListResponse;
 import isang.orangeplanet.domain.feed.repository.FeedRepository;
 import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithTextRequest;
@@ -48,6 +49,15 @@ public class FeedService {
     List<FeedDto> responses = feeds.stream().map(Feed::toDto).toList();
 
     return new FetchFeedListResponse(responses);
+  }
+
+  public FetchMyFeedListResponse fetchMyFeedList() {
+    User user = UserUtils.getUser(SecurityUtils.getAuthUserId());
+
+    List<Feed> feeds = feedRepository.findByTaskUser(user);
+    List<FeedDto> responses = feeds.stream().map(Feed::toDto).toList();
+
+    return new FetchMyFeedListResponse(responses);
   }
 
   public void completeTaskWithText(Long taskId, CompleteTaskWithTextRequest request){
@@ -103,7 +113,6 @@ public class FeedService {
           .task(task)
           .content(content)
           .imageUrl(imageUrl)
-          .user(user)
           .build();
 
       feedRepository.save(newFeed);
