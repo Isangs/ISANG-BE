@@ -24,10 +24,7 @@ public class BadgeRepository {
     return this.queryFactory
       .select(badgeProgress.badge)
       .from(badgeProgress)
-      .where(
-        badgeProgress.user.userId.eq(userId)
-          .and(badgeProgress.isAchieved.eq(true))
-      )
+      .where(badgeProgress.user.userId.eq(userId))
       .fetch();
   }
 
