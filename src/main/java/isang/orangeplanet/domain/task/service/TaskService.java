@@ -89,7 +89,7 @@ public class TaskService {
       만약 둘다 받지 않았으면 둘다 AI 사용해야죠?
      */
 
-    if (request.goalId().isEmpty()) { // 목표 ID가 비어있을때 (선택하지 않았을때)
+    if (request.goalId() == null) { // 목표 ID가 비어있을때 (선택하지 않았을때)
       // 해당 회원의 모든 목표를 조회함.
       List<Goal> goalList = this.jpaGoalRepository.findGoalByUser(user)
         .orElseThrow(() -> new GeneralException(ErrorStatus.KEY_NOT_EXIST, "목표 목록을 찾을 수 없습니다."));
@@ -142,7 +142,7 @@ public class TaskService {
         .orElseThrow(() -> new GeneralException(ErrorStatus.KEY_NOT_EXIST, "목표를 찾을 수 없습니다."));
     }
 
-    if (request.priority().isEmpty()) { // 우선순위가 비어있다면 AI 호출
+    if (request.priority() == null) { // 우선순위가 비어있다면 AI 호출
       // 실제 AI한테 날릴 프롬프트
       String prompt = "사용자의" + request.name() + "와" + goal.getName() + "의 연관도를 0~100 사이 정수(percent)로 계산한다.\n" +
         "설명, 말머리, 코드블록, 여는/닫는 텍스트 없이 **JSON만** 출력한다.\n" + "출력 형식(반드시 준수):\n" + "{\"percent\": 50}";
