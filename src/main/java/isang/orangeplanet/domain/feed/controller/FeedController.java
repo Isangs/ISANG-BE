@@ -7,10 +7,12 @@ import isang.orangeplanet.domain.feed.controller.dto.request.CompleteTaskWithTex
 import isang.orangeplanet.domain.feed.controller.dto.response.FetchFeedListResponse;
 import isang.orangeplanet.domain.feed.controller.dto.response.FetchMyFeedListResponse;
 import isang.orangeplanet.domain.feed.controller.dto.response.SearchFeedListResponse;
+import isang.orangeplanet.domain.feed.enums.ReactionType;
 import isang.orangeplanet.domain.feed.service.FeedService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +21,12 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Feed", description = "피드 관련 API")
 public class FeedController {
   private final FeedService feedService;
+
+  @PatchMapping("/{feedId}/reaction")
+  public ApiResponse<Void> respondWithReactionType(@PathVariable Long feedId, @RequestParam ReactionType reactionType) {
+    feedService.respondWithReactionType(feedId, reactionType);
+    return ApiResponse.onSuccess();
+  }
 
   @PostMapping("/text/{taskId}")
   @Operation(summary = "할일 완료 (텍스트)")

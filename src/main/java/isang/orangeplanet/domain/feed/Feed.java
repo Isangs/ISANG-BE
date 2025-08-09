@@ -37,9 +37,11 @@ public class Feed extends BaseTimeEntity {
   @Column(name = "image_url")
   private String imageUrl;
 
-  public FeedDto toDto(){
+  public FeedDto toDto(Boolean isPostLiked, Boolean isPostHearted){
     return FeedDto.builder()
         .id(feedId)
+        .isPostLiked(isPostLiked)
+        .isPostHearted(isPostHearted)
         .createdAt(getCreatedAt())
         .hearts(hearts)
         .likes(likes)
