@@ -21,9 +21,11 @@ public class Feed extends BaseTimeEntity {
   @Column(name = "feed_id", nullable = false)
   private Long feedId;
 
+  @Setter
   @Column(name = "hearts", nullable = false)
   private Long hearts;
 
+  @Setter
   @Column(name = "likes", nullable = false)
   private Long likes;
 
