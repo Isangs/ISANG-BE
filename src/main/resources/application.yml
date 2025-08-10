@@ -6,6 +6,10 @@ server:
         secure: true
         http-only: true
 
+logging:
+  level:
+    org.springframework.security: DEBUG
+
 spring:
   application:
     name: ISANG-BE
