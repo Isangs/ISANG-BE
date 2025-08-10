@@ -12,6 +12,7 @@ import lombok.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -28,6 +29,17 @@ public class AuthFilter extends OncePerRequestFilter {
     "/auth/oauth/kakao",
     "/auth/oauth/login"
   );
+
+  private final AntPathMatcher pm = new AntPathMatcher();
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest req) {
+    String p = req.getRequestURI();
+    return pm.match("/auth/**", p)
+      || pm.match("/health", p)
+      || pm.match("/v3/api-docs/**", p)
+      || pm.match("/swagger-ui/**", p);
+  }
 
   /**
    * Jwt 인증 필터 메서드
