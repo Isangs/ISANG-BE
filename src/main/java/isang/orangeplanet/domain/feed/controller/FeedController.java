@@ -12,7 +12,6 @@ import isang.orangeplanet.domain.feed.service.FeedService;
 import isang.orangeplanet.global.api_response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
