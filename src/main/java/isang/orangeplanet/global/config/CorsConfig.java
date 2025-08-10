@@ -17,8 +17,7 @@ public class CorsConfig implements WebMvcConfigurer {
     registry.addMapping("/**")
       .allowedOriginPatterns(
         "http://localhost:3000",
-        "https://prod-api.isang.site",
-        "https://api.isang.site/"
+        "https://isang-fe.vercel.app"
       )
       .allowedMethods("*")
       .allowedHeaders("*")
