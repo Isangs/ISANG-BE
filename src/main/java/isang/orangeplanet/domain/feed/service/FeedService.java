@@ -61,8 +61,20 @@ public class FeedService {
           .build();
 
       feedReactionRepository.save(newFeedReaction);
+
+      if(reactionType == ReactionType.LIKE) {
+        currentFeed.setLikes(currentFeed.getLikes() + 1);
+      } else {
+        currentFeed.setHearts(currentFeed.getHearts() + 1);
+      }
     } else {
       feedReactionRepository.delete(feedReaction);
+
+      if(reactionType == ReactionType.LIKE) {
+        currentFeed.setLikes(currentFeed.getLikes() - 1);
+      } else {
+        currentFeed.setHearts(currentFeed.getHearts() - 1);
+      }
     }
   }
 

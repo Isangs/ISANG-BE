@@ -65,6 +65,8 @@ public class User extends BaseTimeEntity {
     this.totalScore += score;
   }
 
+
+
   public UserSimpleDto toSimpleDto(){
     return UserSimpleDto.builder()
         .name(name)
