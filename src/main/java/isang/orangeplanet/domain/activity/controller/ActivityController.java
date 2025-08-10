@@ -2,8 +2,8 @@ package isang.orangeplanet.domain.activity.controller;
 
 import isang.orangeplanet.domain.activity.controller.dto.response.FetchActivityListResponse;
 import isang.orangeplanet.domain.activity.service.ActivityService;
+import isang.orangeplanet.global.api_response.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,14 +13,14 @@ public class ActivityController {
     private final ActivityService activityService;
 
     @GetMapping
-    public ResponseEntity<FetchActivityListResponse> fetchActivityList(@RequestParam(required = false) Integer limit) {
+    public ApiResponse<FetchActivityListResponse> fetchActivityList(@RequestParam(required = false) Integer limit) {
         FetchActivityListResponse response = activityService.fetchActivityList(limit);
-        return ResponseEntity.ok(response);
+        return ApiResponse.onSuccess(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeActivityById(@PathVariable Long id) {
+    public ApiResponse<Void> removeActivityById(@PathVariable Long id) {
         activityService.removeActivityById(id);
-        return ResponseEntity.ok().build();
+        return ApiResponse.onSuccess();
     }
 }
