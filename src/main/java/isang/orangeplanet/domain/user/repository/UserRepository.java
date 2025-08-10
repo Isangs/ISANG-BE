@@ -24,13 +24,14 @@ public class UserRepository {
    * 회원 정보 수정
    * @param request : UpdateUserRequest 객체
    */
-  public void update(UpdateUserRequest request) {
+  public void update(UpdateUserRequest request, String userId) {
     queryFactory.update(user)
       .set(user.name, request.name())
       .set(user.nickName, request.nickName())
       .set(user.profileUrl, request.profileUrl())
       .set(user.email, request.email())
       .set(user.introduce, request.introduce())
+      .where(user.userId.eq(userId))
       .execute();
   }
 

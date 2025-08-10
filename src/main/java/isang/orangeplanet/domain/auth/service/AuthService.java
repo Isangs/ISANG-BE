@@ -101,45 +101,15 @@ public class AuthService {
    */
   public GetAuthInfoResponse kakaoOAuth2Login(String code) {
     String accessToken = this.kakaoTokenRequest(code);
-    KakaoUserDto kakaoUser = this.getKakaoUserInfo(accessToken);
-
-    JwtDto jwtDto = JwtUtils.createToken(
-      JwtClaimsDto.builder()
-        .userId(kakaoUser.getKakaoUserId())
-        .role(Role.USER)
-        .build()
-    );
-
-    // Redis에 Refresh Token 저장
-    RedisUtils.save(jwtDto.getRefreshToken());
-
-    User user = this.userRepository.findById(kakaoUser.getKakaoUserId()).orElse(null);
-
-    // 회원 정보 저장
-    if (user == null) {
-      this.userRepository.save(
-        User.builder()
-          .userId(kakaoUser.getKakaoUserId())
-          .name(kakaoUser.getNickName())
-          .nickName(kakaoUser.getNickName())
-          .profileUrl(kakaoUser.getProfileUrl())
-          .email(kakaoUser.getEmail())
-          .role(Role.USER)
-          .introduce("")
-          .totalScore(0L)
-          .build()
-      );
-    }
-
-    return GetAuthInfoResponse.builder()
-      .accessToken(jwtDto.getAccessToken())
-      .refreshToken(jwtDto.getRefreshToken())
-      .role(Role.USER.name())
-      .build();
+    return login(accessToken);
   }
 
   public GetAuthInfoResponse appKakaoOAuth2Login(String code) {
     String accessToken = this.appKakaoTokenRequest(code);
+    return login(accessToken);
+  }
+
+  public GetAuthInfoResponse login(String accessToken) {
     KakaoUserDto kakaoUser = this.getKakaoUserInfo(accessToken);
 
     JwtDto jwtDto = JwtUtils.createToken(
