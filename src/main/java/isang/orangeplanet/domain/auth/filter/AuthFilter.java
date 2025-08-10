@@ -24,11 +24,11 @@ import java.util.List;
 public class AuthFilter extends OncePerRequestFilter {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private final List<String> EXCLUDE_URLS = List.of(
-    "/health",
-    "/auth/oauth/kakao",
-    "/auth/oauth/login"
-  );
+//  private final List<String> EXCLUDE_URLS = List.of(
+//    "/health",
+//    "/auth/oauth/kakao",
+//    "/auth/oauth/login"
+//  );
 
   private final AntPathMatcher pm = new AntPathMatcher();
 
@@ -55,12 +55,12 @@ public class AuthFilter extends OncePerRequestFilter {
     @NonNull HttpServletResponse response,
     @NonNull FilterChain filterChain
   ) throws ServletException, IOException {
-    for (String uri : EXCLUDE_URLS) { // 인증이 필요하지 않은 자원은 패스
-      if (request.getRequestURI().contains(uri)) {
-        filterChain.doFilter(request, response);
-        return;
-      }
-    }
+//    for (String uri : EXCLUDE_URLS) { // 인증이 필요하지 않은 자원은 패스
+//      if (request.getRequestURI().contains(uri)) {
+//        filterChain.doFilter(request, response);
+//        return;
+//      }
+//    }
 
     String authHeader = request.getHeader("Authorization");
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
