@@ -39,6 +39,9 @@ public class AuthService {
   @Value("${oauth2.redirect-uri}")
   private String redirectUri;
 
+  @Value("${oauth.app.redirect-uri}")
+  private String appRedirectUri;
+
   private final KakaoClient kakaoClient;
   private final KakaoAPIClient kakaoAPIClient;
   private final JpaUserRepository userRepository;
@@ -133,6 +136,62 @@ public class AuthService {
       .refreshToken(jwtDto.getRefreshToken())
       .role(Role.USER.name())
       .build();
+  }
+
+  public GetAuthInfoResponse appKakaoOAuth2Login(String code) {
+    String accessToken = this.appKakaoTokenRequest(code);
+    KakaoUserDto kakaoUser = this.getKakaoUserInfo(accessToken);
+
+    JwtDto jwtDto = JwtUtils.createToken(
+      JwtClaimsDto.builder()
+        .userId(kakaoUser.getKakaoUserId())
+        .role(Role.USER)
+        .build()
+    );
+
+    // Redis에 Refresh Token 저장
+    RedisUtils.save(jwtDto.getRefreshToken());
+
+    User user = this.userRepository.findById(kakaoUser.getKakaoUserId()).orElse(null);
+
+    // 회원 정보 저장
+    if (user == null) {
+      this.userRepository.save(
+        User.builder()
+          .userId(kakaoUser.getKakaoUserId())
+          .name(kakaoUser.getNickName())
+          .nickName(kakaoUser.getNickName())
+          .profileUrl(kakaoUser.getProfileUrl())
+          .email(kakaoUser.getEmail())
+          .role(Role.USER)
+          .introduce("")
+          .totalScore(0L)
+          .build()
+      );
+    }
+
+    return GetAuthInfoResponse.builder()
+      .accessToken(jwtDto.getAccessToken())
+      .refreshToken(jwtDto.getRefreshToken())
+      .role(Role.USER.name())
+      .build();
+  }
+
+  /**
+   * Kakao Access Token 얻는 메서드
+   * @param code : 인가 코드
+   * @return : Kakao Access Token 반환
+   */
+  private String appKakaoTokenRequest(String code) {
+    MultiValueMap<String, String> formParams = new LinkedMultiValueMap<>();
+    formParams.add("grant_type", "authorization_code");
+    formParams.add("client_id", clientId);
+    formParams.add("redirect_uri", appRedirectUri);
+    formParams.add("code", code);
+    formParams.add("client_secret", clientSecretKey);
+
+    JsonNode tokenJson = kakaoClient.tokenRequest(formParams);
+    return tokenJson.get("access_token").asText();
   }
 
   /**
