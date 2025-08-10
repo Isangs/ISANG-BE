@@ -5,6 +5,8 @@ import isang.orangeplanet.domain.user.User;
 import isang.orangeplanet.global.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -31,12 +33,14 @@ public class Task extends BaseTimeEntity {
   @Column(name = "deadline", nullable = false)
   private LocalDateTime deadline;
 
-  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "goal_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Goal goal;
 
-  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
 
   @Column(name = "is_completed")
