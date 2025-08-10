@@ -45,6 +45,6 @@ public class UserService {
    * @param request : UpdateUserRequest 객체
    */
   public void updateUser(UpdateUserRequest request) {
-    this.updateUserRepository.update(request);
+    this.updateUserRepository.update(request, SecurityUtils.getAuthUserId());
   }
 }
